@@ -183,11 +183,10 @@
   }
   .mode-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(auto-fit, minmax(128px,1fr));
     gap:12px;
     margin-top:4px;
   }
-  @media (max-width:520px){ .mode-grid{ grid-template-columns:1fr; } }
   .mode-opt{
     display:flex;
     flex-direction:column;
@@ -199,6 +198,17 @@
   }
   .mode-title{ font-family:'Montserrat',sans-serif; font-weight:700; font-size:15px; color:var(--sand); }
   .mode-desc{ font-family:'Montserrat',sans-serif; font-size:12px; color:var(--sand-dim); font-weight:500; line-height:1.4; }
+
+  .choice-group{ display:flex; flex-direction:column; gap:8px; }
+  .choice-label{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--sand-dim);
+  }
+  .choice-row{ display:flex; gap:8px; }
+  .choice-btn.active{ background:var(--neon); color:var(--ink); border-color:var(--neon); }
 
   .online-actions{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
   .join-row{ display:flex; gap:8px; }
@@ -522,7 +532,34 @@
           <span class="mode-title">ОНЛАЙНААР ТОГЛОХ</span>
           <span class="mode-desc">Найздаа код илгээгээд шууд P2P холбоогоор тоглоно</span>
         </button>
+        <button class="mode-opt" id="modeBotBtn">
+          <span class="mode-title">БОТТОЙ ТОГЛОХ</span>
+          <span class="mode-desc">Компьютер өрсөлдөгчийн эсрэг дадлага хийнэ</span>
+        </button>
       </div>
+    </div>
+
+    <div class="card" id="botMenu" hidden>
+      <h2>БОТТОЙ ТОГЛОХ</h2>
+      <div class="online-actions">
+        <div class="choice-group">
+          <span class="choice-label">Таны тал</span>
+          <div class="choice-row">
+            <button class="choice-btn color-btn active" id="botColorWhiteBtn" data-color="w">Цагаан</button>
+            <button class="choice-btn color-btn" id="botColorBlackBtn" data-color="b">Хар</button>
+          </div>
+        </div>
+        <div class="choice-group">
+          <span class="choice-label">Түвшин</span>
+          <div class="choice-row">
+            <button class="choice-btn depth-btn" data-depth="1">Хялбар</button>
+            <button class="choice-btn depth-btn active" data-depth="2">Дунд</button>
+            <button class="choice-btn depth-btn" data-depth="3">Хэцүү</button>
+          </div>
+        </div>
+        <button class="primary" id="startBotBtn">Тоглож эхлэх</button>
+      </div>
+      <button class="link-btn" id="backFromBotBtn">← Буцах</button>
     </div>
 
     <div class="card" id="onlineMenu" hidden>
@@ -622,6 +659,12 @@
   const modeSelect = document.getElementById('modeSelect');
   const modeLocalBtn = document.getElementById('modeLocalBtn');
   const modeOnlineBtn = document.getElementById('modeOnlineBtn');
+  const modeBotBtn = document.getElementById('modeBotBtn');
+  const botMenu = document.getElementById('botMenu');
+  const startBotBtn = document.getElementById('startBotBtn');
+  const backFromBotBtn = document.getElementById('backFromBotBtn');
+  const colorBtns = document.querySelectorAll('.color-btn');
+  const depthBtns = document.querySelectorAll('.depth-btn');
   const onlineMenu = document.getElementById('onlineMenu');
   const createRoomBtn = document.getElementById('createRoomBtn');
   const joinRoomBtn = document.getElementById('joinRoomBtn');
@@ -661,8 +704,14 @@
   let capturedByBlack = [];
   let pendingPromotion = null;
 
-  let mode = null;        // 'local' | 'online'
+  let mode = null;        // 'local' | 'online' | 'bot'
   let myColor = null;     // 'w' | 'b' (host is always white, guest always black)
+  let playerColor = null; // 'w' | 'b' — human side in bot mode
+  let botColor = null;    // 'w' | 'b' — bot side in bot mode
+  let botDepth = 2;
+  let botThinking = false;
+  let selectedBotColor = 'w';
+  let selectedBotDepth = 2;
   let peer = null;
   let dataConn = null;
 
@@ -706,13 +755,15 @@
   // ---------- render ----------
   function isBoardFlipped(){
     if (mode === 'online') return myColor === 'b';
+    if (mode === 'bot') return playerColor === 'b';
     if (mode === 'local') return game.turn() === 'b';
     return false;
   }
 
   function render(){
     boardEl.innerHTML = '';
-    const isReadonly = mode==='online' && myColor && myColor !== game.turn();
+    const isReadonly = (mode==='online' && myColor && myColor !== game.turn()) ||
+      (mode==='bot' && game.turn() !== playerColor);
     boardEl.classList.toggle('readonly', isReadonly);
     const flipped = isBoardFlipped();
     const boardState = game.board();
@@ -793,6 +844,10 @@
 
   function updateStatus(){
     statusEl.classList.remove('alert');
+    if (mode === 'bot' && botThinking){
+      statusEl.textContent = 'Бот бодож байна…';
+      return;
+    }
     if (game.in_checkmate()){
       const winner = game.turn()==='w' ? 'Хар' : 'Цагаан';
       statusEl.textContent = 'МАТ! ' + winner + ' тал ялав.';
@@ -847,6 +902,9 @@
       if (!dataConn || !dataConn.open) return;
       if (myColor && myColor !== game.turn()) return;
     }
+    if (mode==='bot'){
+      if (botThinking || game.turn() !== playerColor) return;
+    }
 
     if (selected){
       const move = legalTargets.find(m=>m.to===sq);
@@ -897,12 +955,98 @@
     recomputeCaptured();
     render();
     if (mode === 'online') sendSync();
+    if (mode === 'bot' && !game.game_over() && game.turn() === botColor){
+      scheduleBotMove();
+    }
   }
 
   function sendSync(){
     if (dataConn && dataConn.open){
       try { dataConn.send(JSON.stringify({type:'sync', history: game.history()})); } catch(e){}
     }
+  }
+
+  // ---------- bot engine ----------
+  const PIECE_VALUE = { p:100, n:320, b:330, r:500, q:900, k:0 };
+
+  function evaluateBoard(g){
+    let score = 0;
+    const board = g.board();
+    for(let r=0;r<8;r++){
+      for(let f=0;f<8;f++){
+        const c = board[r][f];
+        if (!c) continue;
+        score += (c.color==='w' ? 1 : -1) * PIECE_VALUE[c.type];
+      }
+    }
+    return score;
+  }
+
+  function minimax(g, depth, alpha, beta, maximizing){
+    if (g.in_checkmate()){
+      return maximizing ? -100000 - depth : 100000 + depth;
+    }
+    if (g.in_draw() || g.in_stalemate() || g.in_threefold_repetition()){
+      return 0;
+    }
+    if (depth === 0){
+      return evaluateBoard(g);
+    }
+    const moves = g.moves();
+    if (maximizing){
+      let best = -Infinity;
+      for (const m of moves){
+        g.move(m);
+        best = Math.max(best, minimax(g, depth-1, alpha, beta, false));
+        g.undo();
+        alpha = Math.max(alpha, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    } else {
+      let best = Infinity;
+      for (const m of moves){
+        g.move(m);
+        best = Math.min(best, minimax(g, depth-1, alpha, beta, true));
+        g.undo();
+        beta = Math.min(beta, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    }
+  }
+
+  function pickBotMove(g, depth, forColor){
+    const moves = g.moves();
+    if (!moves.length) return null;
+    const maximize = forColor === 'w';
+    let bestMove = null;
+    let bestVal = maximize ? -Infinity : Infinity;
+    const shuffled = moves.slice().sort(()=>Math.random()-0.5);
+    for (const m of shuffled){
+      g.move(m);
+      const val = minimax(g, depth-1, -Infinity, Infinity, g.turn()==='w');
+      g.undo();
+      if (maximize ? val > bestVal : val < bestVal){
+        bestVal = val;
+        bestMove = m;
+      }
+    }
+    return bestMove;
+  }
+
+  function scheduleBotMove(){
+    if (botThinking) return;
+    botThinking = true;
+    render();
+    setTimeout(()=>{
+      const mv = pickBotMove(game, botDepth, botColor);
+      botThinking = false;
+      if (mv) game.move(mv);
+      recomputeCaptured();
+      clearSelection();
+      render();
+    }, 350);
   }
 
   function openPromotion(color){
@@ -927,14 +1071,23 @@
     gameView.hidden = true;
     turnBadge.hidden = true;
     modeSelect.hidden = false;
+    botMenu.hidden = true;
     onlineMenu.hidden = true;
     waitingHost.hidden = true;
     lobbyStatus.textContent = '';
     lobbyStatus.classList.remove('error');
   }
 
+  function showBotMenu(){
+    modeSelect.hidden = true;
+    botMenu.hidden = false;
+    onlineMenu.hidden = true;
+    waitingHost.hidden = true;
+  }
+
   function showOnlineMenu(){
     modeSelect.hidden = true;
+    botMenu.hidden = true;
     onlineMenu.hidden = false;
     waitingHost.hidden = true;
     lobbyStatus.textContent = '';
@@ -979,6 +1132,27 @@
     render();
   }
 
+  function startBotMode(color, depth){
+    teardownPeer();
+    mode = 'bot';
+    playerColor = color;
+    botColor = color === 'w' ? 'b' : 'w';
+    botDepth = depth;
+    botThinking = false;
+    game = new Chess();
+    recomputeCaptured();
+    clearSelection();
+    lobbyView.hidden = true;
+    gameView.hidden = false;
+    connCard.hidden = true;
+    localControls.hidden = false;
+    onlineControls.hidden = true;
+    render();
+    if (game.turn() === botColor){
+      scheduleBotMove();
+    }
+  }
+
   function teardownPeer(){
     if (dataConn){ try{ dataConn.close(); }catch(e){} dataConn = null; }
     if (peer){ try{ peer.destroy(); }catch(e){} peer = null; }
@@ -986,7 +1160,7 @@
 
   function resetToLobby(){
     teardownPeer();
-    mode = null; myColor = null;
+    mode = null; myColor = null; playerColor = null; botColor = null; botThinking = false;
     showModeSelect();
   }
 
@@ -1130,6 +1304,21 @@
   // ---------- wiring ----------
   modeLocalBtn.addEventListener('click', startLocalMode);
   modeOnlineBtn.addEventListener('click', showOnlineMenu);
+  modeBotBtn.addEventListener('click', showBotMenu);
+  backFromBotBtn.addEventListener('click', showModeSelect);
+  colorBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selectedBotColor = btn.dataset.color;
+      colorBtns.forEach(b=>b.classList.toggle('active', b===btn));
+    });
+  });
+  depthBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      selectedBotDepth = parseInt(btn.dataset.depth, 10);
+      depthBtns.forEach(b=>b.classList.toggle('active', b===btn));
+    });
+  });
+  startBotBtn.addEventListener('click', ()=> startBotMode(selectedBotColor, selectedBotDepth));
   backToModeBtn.addEventListener('click', showModeSelect);
   cancelHostBtn.addEventListener('click', resetToLobby);
   createRoomBtn.addEventListener('click', ()=>{
@@ -1148,12 +1337,37 @@
   rematchBtn.addEventListener('click', rematch);
 
   undoBtn.addEventListener('click', ()=>{
+    if (mode === 'bot'){
+      if (botThinking || !game.history().length) return;
+      game.undo();
+      while (game.history().length && game.turn() !== playerColor){
+        game.undo();
+      }
+      recomputeCaptured();
+      clearSelection();
+      render();
+      if (game.turn() !== playerColor && !game.game_over()){
+        scheduleBotMove();
+      }
+      return;
+    }
     game.undo();
     recomputeCaptured();
     clearSelection();
     render();
   });
   resetBtn.addEventListener('click', ()=>{
+    if (mode === 'bot'){
+      botThinking = false;
+      game.reset();
+      recomputeCaptured();
+      clearSelection();
+      render();
+      if (game.turn() === botColor){
+        scheduleBotMove();
+      }
+      return;
+    }
     game.reset();
     recomputeCaptured();
     clearSelection();
