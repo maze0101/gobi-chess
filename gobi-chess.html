@@ -405,6 +405,14 @@
     flex-direction:column;
     gap:14px;
   }
+  .room-code{
+    font-family:'Montserrat',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    color: var(--sand-dim);
+    margin-bottom:6px;
+  }
   .status-line{
     font-size:14px;
     line-height:1.5;
@@ -604,6 +612,7 @@
 
       <div class="card">
         <h2>ТОГЛООМЫН ТӨЛӨВ</h2>
+        <div class="room-code" id="roomCode"></div>
         <div class="status-line" id="status">Цагаан талын нүүдлээр эхэллээ.</div>
       </div>
 
@@ -650,6 +659,7 @@
   // ---------- elements ----------
   const boardEl = document.getElementById('board');
   const statusEl = document.getElementById('status');
+  const roomCodeEl = document.getElementById('roomCode');
   const turnBadge = document.getElementById('turnBadge');
   const movesEl = document.getElementById('moves');
   const capByWhiteEl = document.getElementById('capturedByWhite');
@@ -1131,6 +1141,7 @@
     connCard.hidden = true;
     localControls.hidden = false;
     onlineControls.hidden = true;
+    setRoomCode('L-' + generateCode(5));
     render();
   }
 
@@ -1149,6 +1160,7 @@
     connCard.hidden = true;
     localControls.hidden = false;
     onlineControls.hidden = true;
+    setRoomCode('B-' + generateCode(5));
     render();
     if (game.turn() === botColor){
       scheduleBotMove();
@@ -1163,6 +1175,7 @@
   function resetToLobby(){
     teardownPeer();
     mode = null; myColor = null; playerColor = null; botColor = null; botThinking = false;
+    setRoomCode(null);
     showModeSelect();
   }
 
@@ -1172,6 +1185,10 @@
   }
 
   function setBusy(btn, busy){ btn.disabled = busy; }
+
+  function setRoomCode(label){
+    roomCodeEl.textContent = label ? ('Тоглоомын өрөө: ' + label) : '';
+  }
 
   // ---------- online: PeerJS ----------
   function generateCode(len){
@@ -1203,6 +1220,7 @@
       game = new Chess();
       recomputeCaptured();
       clearSelection();
+      setRoomCode(code);
       showWaitingHost(code);
       setBusy(createRoomBtn, false);
     });
@@ -1253,6 +1271,7 @@
         game = new Chess();
         recomputeCaptured();
         clearSelection();
+        setRoomCode(code);
         setupConnection(conn);
         setLobbyStatus('');
         setBusy(joinRoomBtn, false);
@@ -1339,6 +1358,7 @@
       game = new Chess();
       recomputeCaptured();
       clearSelection();
+      setRoomCode(code);
       render();
       connText.textContent = 'Өрсөлдөгчийг хүлээж байна…';
       newPeer.on('connection', conn=>{ setupConnection(conn); });
