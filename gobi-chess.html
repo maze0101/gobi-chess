@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="Шатар">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=PT+Serif:ital,wght@0,700;1,700&family=Rubik:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap&subset=cyrillic" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap&subset=cyrillic" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
@@ -27,13 +27,13 @@
     --line: #46311c;
     --neon: #c9a24a;
     --neon-dim: #8a6f34;
-    --light-sq: #e8d9b0;
-    --dark-sq: #4b3220;
+    --light-sq: #ecdcae;
+    --dark-sq: #402a1a;
     --danger: #b5533a;
     --ink: #170f08;
     --ivory: #f5ecd8;
     --ebony: #201408;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Montserrat', sans-serif;
   }
   @media (prefers-color-scheme: light){
     :root:not([data-theme="dark"]){
@@ -82,8 +82,8 @@
     padding-bottom:16px;
   }
   .brand{
-    font-family:'Oswald', sans-serif;
-    font-weight:700;
+    font-family:'Montserrat', sans-serif;
+    font-weight:800;
     text-transform:uppercase;
     font-size:clamp(22px,4.4vw,34px);
     letter-spacing:0.03em;
@@ -100,7 +100,7 @@
   }
   .brand small{
     display:block;
-    font-family:'Rubik',sans-serif;
+    font-family:'Montserrat',sans-serif;
     font-weight:500;
     font-size:12px;
     letter-spacing:0.14em;
@@ -118,7 +118,7 @@
   .motif-band.flip{ transform: scaleY(-1); }
 
   .turn-badge{
-    font-family:'Rubik', sans-serif;
+    font-family:'Montserrat', sans-serif;
     font-weight:700;
     font-size:14px;
     padding:8px 14px;
@@ -156,11 +156,10 @@
   }
   .card h2{
     margin:0 0 10px;
-    font-family:'PT Serif',serif;
-    font-style:italic;
-    font-size:14px;
+    font-family:'Montserrat',sans-serif;
+    font-size:12px;
     font-weight:700;
-    letter-spacing:0.06em;
+    letter-spacing:0.12em;
     color: var(--neon);
   }
   .lobby-view p.hint{
@@ -186,15 +185,15 @@
     padding:16px;
     min-height:96px;
   }
-  .mode-title{ font-family:'PT Serif',serif; font-style:italic; font-weight:700; font-size:16px; color:var(--sand); }
-  .mode-desc{ font-family:'Rubik',sans-serif; font-size:12px; color:var(--sand-dim); font-weight:500; line-height:1.4; }
+  .mode-title{ font-family:'Montserrat',sans-serif; font-weight:700; font-size:15px; color:var(--sand); }
+  .mode-desc{ font-family:'Montserrat',sans-serif; font-size:12px; color:var(--sand-dim); font-weight:500; line-height:1.4; }
 
   .online-actions{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
   .join-row{ display:flex; gap:8px; }
   .join-row input, .code-row input{
     flex:1;
     min-width:0;
-    font-family:'JetBrains Mono',monospace;
+    font-family:'Montserrat',sans-serif;
     font-size:14px;
     letter-spacing:0.08em;
     padding:10px 12px;
@@ -218,7 +217,7 @@
     background:none;
     border:none;
     color:var(--sand-dim);
-    font-family:'Rubik',sans-serif;
+    font-family:'Montserrat',sans-serif;
     font-weight:700;
     font-size:12px;
     letter-spacing:0.05em;
@@ -231,8 +230,8 @@
   .link-btn:hover{ color:var(--neon); }
 
   .code-display{
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
+    font-family:'Montserrat',sans-serif;
+    font-weight:800;
     font-size:clamp(26px,7vw,36px);
     letter-spacing:0.28em;
     color:var(--neon);
@@ -326,7 +325,7 @@
   .sq.dark{ background: var(--dark-sq); }
   .sq .coord{
     position:absolute;
-    font-family:'JetBrains Mono',monospace;
+    font-family:'Montserrat',sans-serif;
     font-size:9px;
     font-weight:700;
     opacity:0.45;
@@ -359,8 +358,8 @@
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35));
     pointer-events:none;
   }
-  .piece.w{ color:#f5ecd8; -webkit-text-stroke: 1px #1c1a12; }
-  .piece.b{ color:#201408; -webkit-text-stroke: 1px #120a05; }
+  .piece.w{ color:#fbf3df; -webkit-text-stroke: 1.5px #140f09; }
+  .piece.b{ color:#0c0803; -webkit-text-stroke: 1.5px #d9c48f; }
 
   .side{
     display:flex;
@@ -390,7 +389,7 @@
     gap:2px;
     max-height:220px;
     overflow-y:auto;
-    font-family:'JetBrains Mono',monospace;
+    font-family:'Montserrat',sans-serif;
     font-size:13px;
     font-variant-numeric: tabular-nums;
   }
@@ -407,7 +406,7 @@
 
   .btn-row{ display:flex; gap:8px; }
   button{
-    font-family:'Rubik',sans-serif;
+    font-family:'Montserrat',sans-serif;
     font-weight:700;
     font-size:13px;
     letter-spacing:0.02em;
@@ -613,7 +612,6 @@
     p:{w:'♙',b:'♟'}, n:{w:'♘',b:'♞'}, b:{w:'♗',b:'♝'},
     r:{w:'♖',b:'♜'}, q:{w:'♕',b:'♛'}, k:{w:'♔',b:'♚'}
   };
-  const CAPTURE_GLYPH = { p:'♟',n:'♞',b:'♝',r:'♜',q:'♛' };
   const files = ['a','b','c','d','e','f','g','h'];
   const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const PEER_PREFIX = 'gbc-';
@@ -779,8 +777,8 @@
   }
 
   function updateCaptured(){
-    capByWhiteEl.innerHTML = capturedByWhite.map(t=>'<span>'+CAPTURE_GLYPH[t]+'</span>').join('');
-    capByBlackEl.innerHTML = capturedByBlack.map(t=>'<span>'+CAPTURE_GLYPH[t]+'</span>').join('');
+    capByWhiteEl.innerHTML = capturedByWhite.map(t=>'<span class="piece b">'+PIECE_GLYPH[t].b+'</span>').join('');
+    capByBlackEl.innerHTML = capturedByBlack.map(t=>'<span class="piece w">'+PIECE_GLYPH[t].w+'</span>').join('');
   }
 
   function updateMoves(){

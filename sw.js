@@ -1,4 +1,4 @@
-const CACHE = 'gobi-chess-v1';
+const CACHE = 'gobi-chess-v2';
 const ASSETS = ['./gobi-chess.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
@@ -16,12 +16,9 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      const network = fetch(event.request).then(res => {
-        if (res && res.ok) caches.open(CACHE).then(c => c.put(event.request, res.clone()));
-        return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
+    fetch(event.request).then(res => {
+      if (res && res.ok) caches.open(CACHE).then(c => c.put(event.request, res.clone()));
+      return res;
+    }).catch(() => caches.match(event.request))
   );
 });
