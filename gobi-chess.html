@@ -1165,7 +1165,19 @@
   showModeSelect();
 
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      reg.update().catch(()=>{});
+      document.addEventListener('visibilitychange', ()=>{
+        if (document.visibilityState === 'visible') reg.update().catch(()=>{});
+      });
+    }).catch(()=>{});
+
+    let refreshedOnce = false;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+      if (refreshedOnce) return;
+      refreshedOnce = true;
+      location.reload();
+    });
   }
 })();
 </script>
