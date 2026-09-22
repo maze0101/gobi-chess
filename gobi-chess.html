@@ -386,6 +386,8 @@
     line-height:1;
     pointer-events:none;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+    font-variant-emoji: text;
+    font-family: 'Segoe UI Symbol', 'DejaVu Sans', sans-serif;
   }
   .piece.w{
     background: radial-gradient(circle at 33% 28%, #fffaf0, #e7d8ae 75%);
@@ -689,8 +691,8 @@
   const rematchBtn = document.getElementById('rematchBtn');
 
   const PIECE_GLYPH = {
-    p:{w:'♙',b:'♟'}, n:{w:'♘',b:'♞'}, b:{w:'♗',b:'♝'},
-    r:{w:'♖',b:'♜'}, q:{w:'♕',b:'♛'}, k:{w:'♔',b:'♚'}
+    p:{w:'♙︎',b:'♟︎'}, n:{w:'♘︎',b:'♞︎'}, b:{w:'♗︎',b:'♝︎'},
+    r:{w:'♖︎',b:'♜︎'}, q:{w:'♕︎',b:'♛︎'}, k:{w:'♔︎',b:'♚︎'}
   };
   const files = ['a','b','c','d','e','f','g','h'];
   const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
