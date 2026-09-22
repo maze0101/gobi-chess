@@ -1286,6 +1286,10 @@
         rebuildFromHistory(msg.history);
         clearSelection();
         render();
+      } else if (msg && msg.type === 'rematch'){
+        handleRematchInvite(msg.code);
+      } else if (msg && msg.type === 'rematch-request'){
+        if (myColor === 'w') hostStartNewRoom();
       }
     });
     dataConn.on('close', ()=>{ setConnStatus(false); });
@@ -1296,11 +1300,74 @@
 
   function rematch(){
     if (mode !== 'online') return;
-    game.reset();
-    recomputeCaptured();
-    clearSelection();
-    render();
-    sendSync();
+    if (myColor === 'w'){
+      hostStartNewRoom();
+    } else if (myColor === 'b'){
+      rematchBtn.disabled = true;
+      connText.textContent = 'Хүсэлт илгээлээ…';
+      try { dataConn && dataConn.send(JSON.stringify({type:'rematch-request'})); } catch(e){}
+    }
+  }
+
+  function hostStartNewRoom(){
+    if (mode !== 'online' || myColor !== 'w') return;
+    rematchBtn.disabled = true;
+    setConnStatus(false);
+    connText.textContent = 'Шинэ өрөө үүсгэж байна…';
+    attemptNewHostRoom(0);
+  }
+
+  function attemptNewHostRoom(attempt){
+    if (attempt > 4){
+      connText.textContent = 'Шинэ өрөө үүсгэж чадсангүй. Дахин оролдоно уу.';
+      setConnStatus(!!dataConn);
+      rematchBtn.disabled = false;
+      return;
+    }
+    const code = generateCode(6);
+    const newPeer = new Peer(PEER_PREFIX + code, {debug:0});
+    let settled = false;
+
+    newPeer.on('open', ()=>{
+      settled = true;
+      const oldPeer = peer, oldConn = dataConn;
+      try { oldConn && oldConn.send(JSON.stringify({type:'rematch', code})); } catch(e){}
+      if (oldConn) try{ oldConn.close(); }catch(e){}
+      if (oldPeer) try{ oldPeer.destroy(); }catch(e){}
+      peer = newPeer;
+      dataConn = null;
+      game = new Chess();
+      recomputeCaptured();
+      clearSelection();
+      render();
+      connText.textContent = 'Өрсөлдөгчийг хүлээж байна…';
+      newPeer.on('connection', conn=>{ setupConnection(conn); });
+      newPeer.on('disconnected', ()=>{ if (dataConn) setConnStatus(false); });
+    });
+
+    newPeer.on('error', err=>{
+      if (!settled){
+        if (err && err.type === 'unavailable-id'){
+          try{ newPeer.destroy(); }catch(e){}
+          attemptNewHostRoom(attempt+1);
+        } else {
+          connText.textContent = 'Шинэ өрөө үүсгэж чадсангүй.';
+          setConnStatus(!!dataConn);
+          rematchBtn.disabled = false;
+        }
+      } else if (dataConn){
+        setConnStatus(false);
+      }
+    });
+  }
+
+  function handleRematchInvite(code){
+    if (mode !== 'online' || myColor !== 'b' || !code) return;
+    rematchBtn.disabled = true;
+    setConnStatus(false);
+    connText.textContent = 'Шинэ өрөөнд холбогдож байна…';
+    teardownPeer();
+    joinByCode(code);
   }
 
   // ---------- wiring ----------
