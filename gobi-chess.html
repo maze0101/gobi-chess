@@ -123,21 +123,24 @@
     font-size:14px;
     padding:8px 14px;
     border:1px solid var(--line);
+    border-left:4px solid var(--line);
     border-radius:3px;
     color: var(--sand);
     background: var(--panel);
     white-space:nowrap;
+    transition: border-left-color .15s ease, background .15s ease;
   }
   .turn-badge .pip{
     display:inline-block;
-    width:8px;height:8px;
+    width:10px;height:10px;
     border-radius:50%;
     margin-right:8px;
     vertical-align:middle;
-    background: var(--sand);
   }
-  .turn-badge.black .pip{ background:#0c100e; border:1px solid var(--sand);}
-  .turn-badge.white .pip{ background:#f2e9d4; }
+  .turn-badge.black{ border-left-color:#f3e6c8; background:linear-gradient(90deg, rgba(23,16,8,0.55), var(--panel) 55%); }
+  .turn-badge.white{ border-left-color:#171008; background:linear-gradient(90deg, rgba(243,230,200,0.16), var(--panel) 55%); }
+  .turn-badge.black .pip{ background:#171008; box-shadow: inset 0 0 0 1.5px #f3e6c8; }
+  .turn-badge.white .pip{ background:#f3e6c8; box-shadow: inset 0 0 0 1.5px #171008; }
 
   /* ---------- lobby ---------- */
   .lobby-view{
@@ -162,6 +165,15 @@
     letter-spacing:0.12em;
     color: var(--neon);
   }
+  .cap-heading{ display:flex; align-items:center; gap:8px; }
+  .cap-heading::before{
+    content:"";
+    width:11px; height:11px;
+    border-radius:50%;
+    flex:none;
+  }
+  .cap-heading.cap-w::before{ background:#f3e6c8; box-shadow: inset 0 0 0 1.5px #171008; }
+  .cap-heading.cap-b::before{ background:#171008; box-shadow: inset 0 0 0 1.5px #f3e6c8; }
   .lobby-view p.hint{
     margin:0 0 14px;
     font-size:13px;
@@ -354,12 +366,27 @@
   .sq.king-check{ box-shadow: inset 0 0 0 3px rgba(181,83,58,0.85); }
 
   .piece{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:1.3em;
+    height:1.3em;
+    border-radius:50%;
+    font-size:0.72em;
     line-height:1;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35));
     pointer-events:none;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
   }
-  .piece.w{ color:#fbf3df; -webkit-text-stroke: 1.5px #140f09; }
-  .piece.b{ color:#0c0803; -webkit-text-stroke: 1.5px #d9c48f; }
+  .piece.w{
+    background: radial-gradient(circle at 33% 28%, #fffaf0, #e7d8ae 75%);
+    color:#171008;
+    box-shadow: inset 0 0 0 1.5px #171008, inset 0 -2px 3px rgba(23,16,8,0.25);
+  }
+  .piece.b{
+    background: radial-gradient(circle at 33% 28%, #40301e, #100a05 75%);
+    color:#f3e6c8;
+    box-shadow: inset 0 0 0 1.5px #f3e6c8, inset 0 -2px 3px rgba(0,0,0,0.5);
+  }
 
   .side{
     display:flex;
@@ -402,7 +429,17 @@
   }
   .moves .row:nth-child(odd){ background: rgba(255,255,255,0.02); }
   .moves .num{ color: var(--sand-dim); }
-  .moves .mv{ color: var(--sand); }
+  .moves .mv{ color: var(--sand); display:flex; align-items:center; gap:6px; }
+  .moves .mv:empty{ display:block; }
+  .moves .mv::before{
+    content:"";
+    width:8px; height:8px;
+    border-radius:50%;
+    flex:none;
+  }
+  .moves .mv:empty::before{ display:none; }
+  .moves .mv-w::before{ background:#f3e6c8; box-shadow: inset 0 0 0 1px #171008; }
+  .moves .mv-b::before{ background:#171008; box-shadow: inset 0 0 0 1px #f3e6c8; }
 
   .btn-row{ display:flex; gap:8px; }
   button{
@@ -532,11 +569,11 @@
       </div>
 
       <div class="card">
-        <h2>ИДЭГДСЭН ХҮҮ — ЦАГААН</h2>
+        <h2 class="cap-heading cap-w">ИДЭГДСЭН ХҮҮ — ЦАГААН</h2>
         <div class="captured" id="capturedByBlack"></div>
       </div>
       <div class="card">
-        <h2>ИДЭГДСЭН ХҮҮ — ХАР</h2>
+        <h2 class="cap-heading cap-b">ИДЭГДСЭН ХҮҮ — ХАР</h2>
         <div class="captured" id="capturedByWhite"></div>
       </div>
 
@@ -791,10 +828,10 @@
       num.className='num';
       num.textContent = (i/2+1)+'.';
       const white = document.createElement('div');
-      white.className='mv';
+      white.className='mv mv-w';
       white.textContent = hist[i] || '';
       const black = document.createElement('div');
-      black.className='mv';
+      black.className='mv mv-b';
       black.textContent = hist[i+1] || '';
       row.appendChild(num); row.appendChild(white); row.appendChild(black);
       movesEl.appendChild(row);
