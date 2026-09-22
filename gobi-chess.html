@@ -669,14 +669,23 @@
   }
 
   // ---------- render ----------
+  function isBoardFlipped(){
+    if (mode === 'online') return myColor === 'b';
+    if (mode === 'local') return game.turn() === 'b';
+    return false;
+  }
+
   function render(){
     boardEl.innerHTML = '';
     const isReadonly = mode==='online' && myColor && myColor !== game.turn();
     boardEl.classList.toggle('readonly', isReadonly);
+    const flipped = isBoardFlipped();
     const boardState = game.board();
-    for(let r=0;r<8;r++){
-      const rank = 8-r;
-      for(let f=0;f<8;f++){
+    for(let dr=0; dr<8; dr++){
+      for(let df=0; df<8; df++){
+        const r = flipped ? 7-dr : dr;
+        const f = flipped ? 7-df : df;
+        const rank = 8-r;
         const file = files[f];
         const sqName = file+rank;
         const cell = boardState[r][f];
@@ -684,7 +693,7 @@
         div.className = 'sq ' + squareColor(file, rank);
         div.dataset.square = sqName;
 
-        if (f===0){
+        if (df===0){
           const c = document.createElement('span');
           c.className = 'coord';
           c.textContent = rank;
