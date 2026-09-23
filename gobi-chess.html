@@ -510,6 +510,73 @@
     flex:none;
   }
 
+  .header-right{ display:flex; align-items:center; gap:10px; }
+  .rules-btn{
+    flex:none;
+    padding:8px 14px;
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+  }
+
+  .rules-overlay{
+    position:fixed; inset:0;
+    background: rgba(12,16,14,0.72);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    z-index:30;
+  }
+  .rules-overlay.open{ display:flex; }
+  .rules-box{
+    background: var(--panel);
+    border:1px solid var(--neon-dim);
+    border-radius:4px;
+    width:100%;
+    max-width:560px;
+    max-height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  .rules-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .rules-head h2{
+    margin:0;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.12em;
+    color: var(--neon);
+  }
+  .rules-head button{ flex:none; padding:6px 12px; }
+  .rules-body{
+    overflow-y:auto;
+    padding:4px 16px 16px;
+    font-size:13px;
+    line-height:1.55;
+    color: var(--sand);
+  }
+  .rules-body h3{
+    margin:16px 0 6px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color: var(--neon);
+  }
+  .rules-body p{ margin:0 0 8px; }
+  .rules-body ul{ margin:0; padding-left:0; list-style:none; }
+  .rules-body li{ display:flex; gap:10px; padding:5px 0; border-bottom:1px solid rgba(70,49,28,0.5); }
+  .rules-body li:last-child{ border-bottom:none; }
+  .rules-body .pc{ flex:none; width:26px; font-size:22px; line-height:1.1; text-align:center; color: var(--ivory); }
+  .rules-body b{ color: var(--ivory); font-weight:700; }
+
   footer{
     text-align:center;
     font-size:11px;
@@ -526,7 +593,10 @@
     <h1 class="brand"><span class="dot"></span>ЗАНГИЛАА ШАТАР
       <small>GOBI PROTOCOL · LOCAL &amp; PEER-TO-PEER BOARD</small>
     </h1>
-    <div class="turn-badge white" id="turnBadge" hidden><span class="pip"></span>Цагаан нүүх ээлж</div>
+    <div class="header-right">
+      <div class="turn-badge white" id="turnBadge" hidden><span class="pip"></span>Цагаан нүүх ээлж</div>
+      <button class="rules-btn" id="rulesBtn">Дүрэм</button>
+    </div>
   </header>
   <div class="motif-band"></div>
 
@@ -648,6 +718,67 @@
 <div class="promo-overlay" id="promoOverlay">
   <div class="promo-box" id="promoBox"></div>
 </div>
+
+<div class="rules-overlay" id="rulesOverlay">
+  <div class="rules-box" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+    <div class="rules-head">
+      <h2 id="rulesTitle">ШАТРЫН ДҮРЭМ</h2>
+      <button id="rulesCloseBtn" aria-label="Хаах">✕</button>
+    </div>
+    <div class="rules-body">
+      <h3>Зорилго</h3>
+      <p>Өрсөлдөгчийн <b>ноёныг мат</b> болгох — ноён шаг дор байгаа бөгөөд ямар ч нүүдлээр түүнээс гарч чадахгүй болгох.</p>
+
+      <h3>Эхлэл</h3>
+      <p>Хөлөг 8×8 нүдтэй. Цагаан тал эхэлж нүүнэ, дараа нь ээлжлэн нэг нэг нүүдэл хийнэ. Өөрийн хүүгийн эзэлсэн нүд рүү нүүж болохгүй; өрсөлдөгчийн хүүтэй нүд рүү нүүвэл тэр хүүг иднэ.</p>
+
+      <h3>Хүүнүүдийн нүүдэл</h3>
+      <ul>
+        <li><span class="pc">♚</span><span><b>Ноён</b> — аль ч чиглэлд нэг нүд нүүнэ. Шаг дор орох нүд рүү нүүж болохгүй.</span></li>
+        <li><span class="pc">♛</span><span><b>Бэрс</b> — хэвтээ, босоо, ташуу чиглэлд хэдэн ч нүд нүүнэ.</span></li>
+        <li><span class="pc">♜</span><span><b>Тэрэг</b> — хэвтээ ба босоо чиглэлд хэдэн ч нүд нүүнэ.</span></li>
+        <li><span class="pc">♝</span><span><b>Тэмээ</b> — ташуу чиглэлд хэдэн ч нүд нүүнэ. Үргэлж нэг өнгийн нүдэн дээр үлдэнэ.</span></li>
+        <li><span class="pc">♞</span><span><b>Морь</b> — «Г» хэлбэрээр (нэг чиглэлд 2 нүд, дараа нь хажуу тийш 1 нүд) нүүнэ. Бусад хүүн дээгүүр харайж чадах цорын ганц хүү.</span></li>
+        <li><span class="pc">♟</span><span><b>Хүү</b> — урагшаа нэг нүд нүүнэ, анхны нүүдэлдээ хоёр нүд нүүж болно. Зөвхөн урагш ташуу нэг нүдэнд байгаа хүүг иднэ. Ухарч нүүхгүй.</span></li>
+      </ul>
+
+      <h3>Тусгай нүүдлүүд</h3>
+      <ul>
+        <li><span class="pc">♚</span><span><b>Цайз</b> — ноён тэрэг рүүгээ хоёр нүд нүүж, тэрэг ноёны нөгөө талд гарна. Ноён, тэрэг хоёр өмнө нь нүүгээгүй, хооронд нь хүү байхгүй, ноён шаг дор биш, дайран өнгөрөх нүд нь шаг дор биш байх ёстой. Энд ноёноо тэрэг рүү хоёр нүд нүүлгэхэд цайз хийгдэнэ.</span></li>
+        <li><span class="pc">♟</span><span><b>Дайран өнгөрөх идэлт</b> — өрсөлдөгчийн хүү анхны нүүдлээрээ хоёр нүд нүүж таны хүүгийн хажууд ирвэл, яг дараагийн нүүдэлд л түүнийг нэг нүд нүүсэн мэт ташуу идэж болно.</span></li>
+        <li><span class="pc">♛</span><span><b>Хүү хувирах</b> — хүү хөлгийн эсрэг захад хүрвэл бэрс, тэрэг, тэмээ эсвэл морь болж хувирна. Энд сонгох цонх гарч ирнэ.</span></li>
+      </ul>
+
+      <h3>Шаг ба мат</h3>
+      <p><b>Шаг</b> — ноён дайралтад өртсөн байдал. Шаг өгөгдсөн бол заавал түүнээс гарах ёстой: ноёноо нүүлгэх, дайрч буй хүүг идэх эсвэл хооронд нь хүү оруулах. Өөрийн ноёныг шаг дор үлдээх нүүдэл хийж болохгүй.</p>
+      <p><b>Мат</b> — шаг дор байгаа ноён ямар ч аргаар гарч чадахгүй бол тоглоом дуусч, мат хийсэн тал хожино.</p>
+
+      <h3>Тэнцээ</h3>
+      <ul>
+        <li><span class="pc">½</span><span><b>Пат</b> — нүүх ээлжтэй тал шаг дор биш ч хийх боломжтой нүүдэлгүй болох.</span></li>
+        <li><span class="pc">½</span><span><b>Хүү хүрэлцэхгүй</b> — аль ч тал мат хийх хангалттай хүүгүй болох (жишээ нь зөвхөн ноён ноёны эсрэг).</span></li>
+        <li><span class="pc">½</span><span><b>Гурван давталт</b> — нэг байрлал гурван удаа давтагдах.</span></li>
+        <li><span class="pc">½</span><span><b>50 нүүдлийн дүрэм</b> — 50 нүүдлийн турш хүү нүүгээгүй, идэлт хийгдээгүй бол.</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const rulesBtn = document.getElementById('rulesBtn');
+  const rulesOverlay = document.getElementById('rulesOverlay');
+  const rulesCloseBtn = document.getElementById('rulesCloseBtn');
+  function openRules(){ rulesOverlay.classList.add('open'); rulesCloseBtn.focus(); }
+  function closeRules(){ rulesOverlay.classList.remove('open'); rulesBtn.focus(); }
+  rulesBtn.addEventListener('click', openRules);
+  rulesCloseBtn.addEventListener('click', closeRules);
+  rulesOverlay.addEventListener('click', e=>{ if (e.target === rulesOverlay) closeRules(); });
+  document.addEventListener('keydown', e=>{
+    if (e.key === 'Escape' && rulesOverlay.classList.contains('open')) closeRules();
+  });
+})();
+</script>
 
 <script>
 (function(){
