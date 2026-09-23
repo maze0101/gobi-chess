@@ -409,6 +409,37 @@
   }
   .piece.jumped{ opacity:0.35; }
   .game-pick{ margin-bottom:18px; }
+  .game-pick .choice-btn{ padding:10px 6px; }
+
+  .clock{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:7px 12px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm, 7px);
+    background:var(--dune-mid);
+    color:var(--sand-dim);
+    font-weight:700;
+    font-size:13px;
+    transition: border-color .15s ease, color .15s ease, box-shadow .2s ease;
+  }
+  .clock.top{ margin-bottom:10px; }
+  .clock.bottom{ margin-top:10px; }
+  .clock-name{ display:flex; align-items:center; gap:8px; }
+  .clock .pip{ width:10px; height:10px; border-radius:50%; flex:none; }
+  .clock.w .pip{ background:#f3e6c8; box-shadow: inset 0 0 0 1.5px #171008; }
+  .clock.b .pip{ background:#171008; box-shadow: inset 0 0 0 1.5px #f3e6c8; }
+  .clock-time{ font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:0.02em; }
+  .clock.active{ border-color:var(--neon); color:var(--ivory); box-shadow:0 0 0 1px rgba(201,162,74,0.35), 0 0 18px rgba(201,162,74,0.18); }
+  .clock.low .clock-time{ color:var(--danger); }
+
+  .status-note{ font-size:12px; color:var(--sand-dim); margin-top:6px; min-height:0; }
+  .status-note:empty{ display:none; }
+
+  .ask-box{ max-width:380px; padding:20px; gap:16px; }
+  .ask-box p{ margin:0; font-size:15px; line-height:1.5; color:var(--ivory); text-align:center; }
 
   .side{
     display:flex;
@@ -773,6 +804,13 @@
         <button class="choice-btn game-btn active" data-game="chess">Шатар</button>
         <button class="choice-btn game-btn" data-game="draughts">Даам</button>
       </div>
+      <h2>ЦАГ</h2>
+      <div class="choice-row game-pick">
+        <button class="choice-btn tc-btn active" data-tc="0">Цаггүй</button>
+        <button class="choice-btn tc-btn" data-tc="3">3 мин</button>
+        <button class="choice-btn tc-btn" data-tc="5">5 мин</button>
+        <button class="choice-btn tc-btn" data-tc="10">10 мин</button>
+      </div>
       <h2>ТОГЛОХ ЗАГВАРАА СОНГОНО УУ</h2>
       <div class="mode-grid">
         <button class="mode-opt" id="modeLocalBtn">
@@ -842,7 +880,9 @@
 
   <div class="game-grid" id="gameView" hidden>
     <div class="board-frame">
+      <div class="clock top" id="clockTop" hidden><span class="clock-name"><span class="pip"></span><span class="clock-side"></span></span><span class="clock-time"></span></div>
       <div class="board" id="board"></div>
+      <div class="clock bottom" id="clockBottom" hidden><span class="clock-name"><span class="pip"></span><span class="clock-side"></span></span><span class="clock-time"></span></div>
     </div>
 
     <div class="side">
@@ -855,6 +895,7 @@
         <h2>ТОГЛООМЫН ТӨЛӨВ</h2>
         <div class="room-code" id="roomCode"></div>
         <div class="status-line" id="status">Цагаан талын нүүдлээр эхэллээ.</div>
+        <div class="status-note" id="statusNote"></div>
       </div>
 
       <div class="card">
@@ -871,6 +912,10 @@
         <div class="moves" id="moves"></div>
       </div>
 
+      <div class="btn-row" id="gameActions">
+        <button id="drawBtn">½ Тэнцээ</button>
+        <button id="resignBtn">⚑ Бууж өгөх</button>
+      </div>
       <div class="btn-row" id="localControls">
         <button id="undoBtn">Буцаах</button>
         <button class="primary" id="resetBtn">Шинээр эхлэх</button>
@@ -888,6 +933,16 @@
 
 <div class="promo-overlay" id="promoOverlay">
   <div class="promo-box" id="promoBox"></div>
+</div>
+
+<div class="rules-overlay" id="askOverlay">
+  <div class="rules-box ask-box" role="alertdialog" aria-modal="true" aria-labelledby="askText">
+    <p id="askText"></p>
+    <div class="btn-row">
+      <button id="askNo">Үгүй</button>
+      <button class="primary" id="askYes">Тийм</button>
+    </div>
+  </div>
 </div>
 
 <div class="rules-overlay" id="rulesOverlay">
@@ -936,6 +991,12 @@
         <li><span class="pc">½</span><span><b>Гурван давталт</b> — нэг байрлал гурван удаа давтагдах.</span></li>
         <li><span class="pc">½</span><span><b>50 нүүдлийн дүрэм</b> — 50 нүүдлийн турш хүү нүүгээгүй, идэлт хийгдээгүй бол.</span></li>
       </ul>
+      <h3>Бууж өгөх, тэнцээ, цаг</h3>
+      <ul>
+        <li><span class="pc">⚑</span><span><b>Бууж өгөх</b> — тоглогч хүссэн үедээ бууж өгч болно, өрсөлдөгч нь хожино.</span></li>
+        <li><span class="pc">½</span><span><b>Тэнцээ санал болгох</b> — өрсөлдөгч зөвшөөрвөл тоглолт тэнцээгээр дуусна. Бот зөвхөн өөрөө давуу биш үед зөвшөөрнө.</span></li>
+        <li><span class="pc">◷</span><span><b>Цаг</b> — лоббид цаг сонгосон бол тал бүр тэр хэмжээний хугацаатай. Цаг нь анхны нүүдлийн дараа явж эхэлнэ. Цаг нь дууссан тал хожигдоно.</span></li>
+      </ul>
     </div>
     <div class="rules-pane" data-game="draughts" hidden>
       <h3>Зорилго</h3>
@@ -967,6 +1028,14 @@
         <li><span class="pc">1</span><span>Нүүх ээлжтэй тал нүүдэлгүй болбол (бүх даам нь идэгдсэн эсвэл хаагдсан) <b>хожигдоно</b>.</span></li>
         <li><span class="pc">½</span><span><b>Гурван давталт</b> — нэг байрлал гурван удаа давтагдах.</span></li>
         <li><span class="pc">½</span><span><b>15 нүүдлийн дүрэм</b> — хоёр тал 15 нүүдэл зөвхөн хаанаар, идэлтгүй нүүвэл.</span></li>
+        <li><span class="pc">½</span><span><b>3 хаан 1 хааны эсрэг</b> — гурав ба түүнээс олон хаантай тал ганц хааныг 15 нүүдэлд идэж чадахгүй бол.</span></li>
+        <li><span class="pc">½</span><span><b>Хүчний харьцаа</b> — хоёр талд хоёуланд нь хаан байхад идэлт, хаан болох явдал гараагүй: 4–5 хүүтэй үед 30 нүүдэл, 6–7 хүүтэй үед 60 нүүдэл.</span></li>
+      </ul>
+      <h3>Бууж өгөх, тэнцээ, цаг</h3>
+      <ul>
+        <li><span class="pc">⚑</span><span><b>Бууж өгөх</b> — тоглогч хүссэн үедээ бууж өгч болно, өрсөлдөгч нь хожино.</span></li>
+        <li><span class="pc">½</span><span><b>Тэнцээ санал болгох</b> — өрсөлдөгч зөвшөөрвөл тоглолт тэнцээгээр дуусна. Бот зөвхөн өөрөө давуу биш үед зөвшөөрнө.</span></li>
+        <li><span class="pc">◷</span><span><b>Цаг</b> — лоббид цаг сонгосон бол тал бүр тэр хэмжээний хугацаатай. Цаг нь анхны нүүдлийн дараа явж эхэлнэ. Цаг нь дууссан тал хожигдоно.</span></li>
       </ul>
     </div>
     </div>
@@ -1012,7 +1081,10 @@
 function createDraughts(){
   const FILES = 'abcdefgh';
   const DIRS = [[-1,-1],[-1,1],[1,-1],[1,1]];
-  let board, turn, stack, keys, kingQuiet, cache;
+  // kingQuiet: plies of king-only moves without a capture.
+  // balance:   plies with no capture/promotion while both sides have kings.
+  // lone:      plies of three-plus kings against a lone king.
+  let board, turn, stack, keys, kingQuiet, balance, lone, cache;
 
   const inB = (r,f)=> r>=0 && r<8 && f>=0 && f<8;
   const name = i => FILES[i%8] + (8 - Math.floor(i/8));
@@ -1032,7 +1104,7 @@ function createDraughts(){
     }
     turn = 'w';
     stack = [];
-    kingQuiet = 0;
+    kingQuiet = balance = lone = 0;
     cache = null;
     keys = [posKey()];
   }
@@ -1123,12 +1195,33 @@ function createDraughts(){
     board[Math.floor(fi/8)][fi%8] = null;
     m.captured.forEach(sq=>{ const i = index(sq); board[Math.floor(i/8)][i%8] = null; });
     board[Math.floor(ti/8)][ti%8] = {type: (p.type==='k' || m.promoted) ? 'k' : 'm', color: p.color};
-    stack.push({move:m, kingQuiet});
+    stack.push({move:m, kingQuiet, balance, lone});
     kingQuiet = (p.type==='k' && !m.captured.length) ? kingQuiet+1 : 0;
+    const s = count(), changed = m.captured.length || m.promoted;
+    balance = (!changed && s.w.k && s.b.k) ? balance+1 : 0;
+    const loneKing = (a,b)=> a.m===0 && a.k===1 && b.k>=3;
+    lone = (!changed && (loneKing(s.w,s.b) || loneKing(s.b,s.w))) ? lone+1 : 0;
     turn = turn==='w' ? 'b' : 'w';
     cache = null;
     keys.push(posKey());
     return m;
+  }
+
+  function count(){
+    const s = {w:{m:0,k:0}, b:{m:0,k:0}};
+    board.forEach(row=>row.forEach(p=>{ if (p) s[p.color][p.type]++; }));
+    return s;
+  }
+
+  // Russian draughts draw rules; thresholds are in plies (one side's move).
+  function drawReason(){
+    if (threefold()) return 'threefold';
+    if (lone >= 30) return 'three-v-one';
+    if (kingQuiet >= 30) return 'kings15';
+    const s = count(), n = s.w.m + s.w.k + s.b.m + s.b.k;
+    if ((n===4 || n===5) && balance >= 60) return 'balance30';
+    if ((n===6 || n===7) && balance >= 120) return 'balance60';
+    return null;
   }
 
   function threefold(){
@@ -1163,7 +1256,7 @@ function createDraughts(){
       board[Math.floor(ti/8)][ti%8] = null;
       board[Math.floor(fi/8)][fi%8] = {type:m.piece, color:m.color};
       m.captured.forEach((sq,k)=>{ const i = index(sq); board[Math.floor(i/8)][i%8] = Object.assign({}, m.capturedPieces[k]); });
-      kingQuiet = rec.kingQuiet;
+      kingQuiet = rec.kingQuiet; balance = rec.balance; lone = rec.lone;
       turn = m.color;
       keys.pop();
       cache = null;
@@ -1178,16 +1271,16 @@ function createDraughts(){
         const c = placement[sq], i = index(sq);
         board[Math.floor(i/8)][i%8] = {type: c===c.toUpperCase() ? 'k' : 'm', color: c.toLowerCase()};
       });
-      turn = side || 'w'; stack = []; kingQuiet = 0; cache = null; keys = [posKey()];
+      turn = side || 'w'; stack = []; kingQuiet = balance = lone = 0; cache = null; keys = [posKey()];
     },
     in_check: ()=> false,
     in_checkmate: ()=> generate().length === 0,   // side to move has no moves → loses
     in_stalemate: ()=> false,
     insufficient_material: ()=> false,
     in_threefold_repetition: threefold,
-    king_draw: ()=> kingQuiet >= 30,                // 15 moves each, kings only, no captures
-    in_draw: ()=> threefold() || kingQuiet >= 30,
-    game_over: ()=> generate().length === 0 || threefold() || kingQuiet >= 30
+    draw_reason: drawReason,
+    in_draw: ()=> !!drawReason(),
+    game_over: ()=> generate().length === 0 || !!drawReason()
   };
   reset();
   return api;
@@ -1245,6 +1338,16 @@ function createDraughts(){
   const resetBtn = document.getElementById('resetBtn');
   const leaveRoomBtn = document.getElementById('leaveRoomBtn');
   const exitGameBtn = document.getElementById('exitGameBtn');
+  const drawBtn = document.getElementById('drawBtn');
+  const resignBtn = document.getElementById('resignBtn');
+  const statusNote = document.getElementById('statusNote');
+  const clockTop = document.getElementById('clockTop');
+  const clockBottom = document.getElementById('clockBottom');
+  const tcBtns = document.querySelectorAll('.tc-btn');
+  const askOverlay = document.getElementById('askOverlay');
+  const askText = document.getElementById('askText');
+  const askYes = document.getElementById('askYes');
+  const askNo = document.getElementById('askNo');
   const rematchBtn = document.getElementById('rematchBtn');
 
   const PIECE_GLYPH = {
@@ -1261,6 +1364,11 @@ function createDraughts(){
   function newGame(){ return gameType === 'draughts' ? createDraughts() : new Chess(); }
   let game = newGame();
   let dPath = [];         // draughts: squares visited so far by the selected piece
+  let result = null;      // {winner:'w'|'b'|null, reason:'resign'|'timeout'|'agreed'} — ends set outside the rules engine
+  let notice = '';        // one-off message under the status line
+  let drawPending = false;
+  let tc = 0;             // minutes per side, 0 = no clock
+  let clock = null;       // {w, b: ms left, running: 'w'|'b'|null, since: ms timestamp}
   let selected = null;
   let legalTargets = [];
   let capturedByWhite = [];
@@ -1319,6 +1427,167 @@ function createDraughts(){
         else capturedByBlack.push(m.captured);
       }
     });
+  }
+
+  function isOver(){ return !!result || game.game_over(); }
+
+  function freshGame(){
+    game = newGame();
+    result = null;
+    notice = '';
+    drawPending = false;
+    resetClock();
+    recomputeCaptured();
+    clearSelection();
+  }
+
+  function otherColor(c){ return c === 'w' ? 'b' : 'w'; }
+  function colorName(c){ return c === 'w' ? 'Цагаан' : 'Хар'; }
+
+  // ---------- clock ----------
+  function resetClock(){
+    clock = tc ? {w: tc*60000, b: tc*60000, running: null, since: 0} : null;
+  }
+
+  function clockLeft(c){
+    if (!clock) return 0;
+    let t = clock[c];
+    if (clock.running === c) t -= Date.now() - clock.since;
+    return Math.max(0, t);
+  }
+
+  // Freeze whoever was running and start the side to move. The clock starts
+  // after the first move and stops once the game is over.
+  function restartClock(){
+    if (!clock) return;
+    if (clock.running) clock[clock.running] = clockLeft(clock.running);
+    clock.running = (game.history().length && !isOver()) ? game.turn() : null;
+    clock.since = Date.now();
+  }
+
+  function formatClock(ms){
+    const total = Math.ceil(ms/1000);
+    const m = Math.floor(total/60), sec = total%60;
+    return m + ':' + (sec<10 ? '0' : '') + sec;
+  }
+
+  function updateClocks(){
+    const show = !!clock && !gameView.hidden;
+    clockTop.hidden = clockBottom.hidden = !show;
+    if (!show) return;
+    const bottom = isBoardFlipped() ? 'b' : 'w';
+    [[clockTop, otherColor(bottom)], [clockBottom, bottom]].forEach(([el, c])=>{
+      const left = clockLeft(c);
+      el.className = 'clock ' + (el === clockTop ? 'top ' : 'bottom ') + c +
+        (clock.running === c ? ' active' : '') + (left < 20000 ? ' low' : '');
+      el.querySelector('.clock-side').textContent = colorName(c);
+      el.querySelector('.clock-time').textContent = formatClock(left);
+    });
+  }
+
+  function tickClock(){
+    if (!clock) return;
+    const c = clock.running;
+    // online, each side only calls its own flag; the opponent's result arrives by sync
+    if (c && !result && clockLeft(c) <= 0 && (mode !== 'online' || c === myColor)){
+      clock[c] = 0;
+      endGame({winner: otherColor(c), reason: 'timeout'});
+      return;
+    }
+    updateClocks();
+  }
+
+  function setTimeControl(minutes){
+    tc = minutes;
+    tcBtns.forEach(b=>b.classList.toggle('active', parseInt(b.dataset.tc,10) === minutes));
+    resetClock();
+  }
+
+  // ---------- resign / draw ----------
+  function endGame(res){
+    result = res;
+    botThinking = false;
+    drawPending = false;
+    restartClock();
+    clearSelection();
+    render();
+    if (mode === 'online') sendSync();
+  }
+
+  let askResolve = null;
+  function ask(text, yes, no){
+    askText.textContent = text;
+    askYes.textContent = yes || 'Тийм';
+    askNo.textContent = no || 'Үгүй';
+    askOverlay.classList.add('open');
+    askYes.focus();
+    return new Promise(res=>{ askResolve = res; });
+  }
+  function closeAsk(answer){
+    askOverlay.classList.remove('open');
+    if (askResolve){ const r = askResolve; askResolve = null; r(answer); }
+  }
+
+  function myResigningColor(){
+    if (mode === 'online') return myColor;
+    if (mode === 'bot') return playerColor;
+    return game.turn();
+  }
+
+  async function resign(){
+    if (isOver()) return;
+    const c = myResigningColor();
+    if (!c) return;
+    if (!await ask(colorName(c) + ' тал бууж өгөх үү?', 'Бууж өгөх', 'Болих')) return;
+    if (isOver()) return;
+    endGame({winner: otherColor(c), reason: 'resign'});
+  }
+
+  async function offerDraw(){
+    if (isOver() || drawPending) return;
+    if (mode === 'online'){
+      if (!dataConn || !dataConn.open) return;
+      drawPending = true;
+      notice = 'Тэнцээ санал болголоо. Хариуг хүлээж байна…';
+      try { dataConn.send(JSON.stringify({type:'draw-offer'})); } catch(e){}
+      render();
+      return;
+    }
+    if (mode === 'bot'){
+      if (botThinking) return;
+      // the bot takes a draw when it is not ahead — sooner if it is behind
+      const forBot = evaluateBoard(game) * (botColor === 'w' ? 1 : -1);
+      if (forBot <= -100 || (forBot <= 0 && game.history().length >= 40)){
+        endGame({winner: null, reason: 'agreed'});
+      } else {
+        notice = 'Бот тэнцээнээс татгалзлаа.';
+        render();
+      }
+      return;
+    }
+    if (await ask('Хоёр тал тэнцээнд зөвшөөрч байна уу?', 'Тэнцээ', 'Үгүй') && !isOver()){
+      endGame({winner: null, reason: 'agreed'});
+    }
+  }
+
+  async function onDrawOffer(){
+    if (isOver()) return;
+    const yes = await ask('Өрсөлдөгч тэнцээ санал болгож байна.', 'Зөвшөөрөх', 'Татгалзах');
+    if (isOver()) return;
+    if (yes){
+      endGame({winner: null, reason: 'agreed'});
+    } else {
+      try { dataConn && dataConn.send(JSON.stringify({type:'draw-decline'})); } catch(e){}
+    }
+  }
+
+  function resultText(){
+    if (!result) return '';
+    if (result.reason === 'agreed') return 'Тэнцээ — хоёр тал зөвшөөрөв.';
+    const loser = otherColor(result.winner);
+    if (result.reason === 'resign') return colorName(loser) + ' тал бууж өглөө — ' + colorName(result.winner) + ' тал ялав.';
+    if (result.reason === 'timeout') return colorName(loser) + ' талын цаг дууслаа — ' + colorName(result.winner) + ' тал ялав.';
+    return '';
   }
 
   function rebuildFromHistory(hist){
@@ -1390,6 +1659,16 @@ function createDraughts(){
       }
     }
 
+    const hist = game.history({verbose:true});
+    const last = hist[hist.length-1];
+    if (last){
+      const path = last.path || [last.from, last.to];
+      path.forEach((sq,i)=>{
+        const el = boardEl.querySelector('[data-square="'+sq+'"]');
+        if (el) el.classList.add(i === 0 ? 'from' : 'to');
+      });
+    }
+
     legalTargets.forEach(mv=>{
       const el = boardEl.querySelector('[data-square="'+mv.to+'"]');
       if(!el) return;
@@ -1417,6 +1696,11 @@ function createDraughts(){
     updateStatusBadge();
     updateCaptured();
     updateMoves();
+    updateClocks();
+    const offline = mode === 'online' && !(dataConn && dataConn.open);
+    resignBtn.disabled = isOver() || offline;
+    drawBtn.disabled = isOver() || offline || drawPending || (mode === 'bot' && botThinking);
+    statusNote.textContent = notice;
   }
 
   function updateStatusBadge(){
@@ -1433,6 +1717,11 @@ function createDraughts(){
 
   function updateStatus(){
     statusEl.classList.remove('alert');
+    if (result){
+      statusEl.textContent = resultText();
+      statusEl.classList.add('alert');
+      return;
+    }
     if (mode === 'bot' && botThinking){
       statusEl.textContent = 'Бот бодож байна…';
       return;
@@ -1444,8 +1733,13 @@ function createDraughts(){
         statusEl.classList.add('alert');
       } else if (game.in_threefold_repetition()){
         statusEl.textContent = 'Гурван удаагийн давталт — тэнцээ.';
-      } else if (game.king_draw()){
-        statusEl.textContent = '15 нүүдэл зөвхөн хаанаар, идэлтгүй — тэнцээ.';
+      } else if (game.draw_reason()){
+        statusEl.textContent = {
+          'three-v-one': '3 хаан 1 хааны эсрэг 15 нүүдэлд идэгдсэнгүй — тэнцээ.',
+          'kings15': '15 нүүдэл зөвхөн хаанаар, идэлтгүй — тэнцээ.',
+          'balance30': 'Хүчний харьцаа 30 нүүдэл өөрчлөгдсөнгүй — тэнцээ.',
+          'balance60': 'Хүчний харьцаа 60 нүүдэл өөрчлөгдсөнгүй — тэнцээ.'
+        }[game.draw_reason()] || 'Тэнцээ.';
       } else if (dPath.length > 1){
         statusEl.textContent = 'Идэлтээ үргэлжлүүлнэ үү.';
         statusEl.classList.add('alert');
@@ -1506,7 +1800,7 @@ function createDraughts(){
   // ---------- board interaction ----------
   function onSquareClick(e){
     const sq = e.currentTarget.dataset.square;
-    if (game.game_over()) return;
+    if (isOver()) return;
     if (mode==='online'){
       if (!dataConn || !dataConn.open) return;
       if (myColor && myColor !== game.turn()) return;
@@ -1611,18 +1905,20 @@ function createDraughts(){
 
   function commitMove(move){
     clearSelection();
+    if (move){ notice = ''; drawPending = false; restartClock(); }
     if (!move){ render(); return; }
     recomputeCaptured();
     render();
     if (mode === 'online') sendSync();
-    if (mode === 'bot' && !game.game_over() && game.turn() === botColor){
+    if (mode === 'bot' && !isOver() && game.turn() === botColor){
       scheduleBotMove();
     }
   }
 
   function sendSync(){
     if (dataConn && dataConn.open){
-      try { dataConn.send(JSON.stringify({type:'sync', game: gameType, history: game.history()})); } catch(e){}
+      const clk = clock ? {w: clockLeft('w'), b: clockLeft('b')} : null;
+      try { dataConn.send(JSON.stringify({type:'sync', game: gameType, tc, history: game.history(), result, clock: clk})); } catch(e){}
     }
   }
 
@@ -1717,13 +2013,15 @@ function createDraughts(){
     if (botThinking) return;
     botThinking = true;
     render();
+    const forGame = game;
     setTimeout(()=>{
-      if (mode !== 'bot') return;
+      // skip if the player left, the game ended, or a new game started meanwhile
+      if (mode !== 'bot' || result || game !== forGame) return;
       // draughts has far fewer moves per turn, so it can afford to look deeper
       const depth = gameType === 'draughts' ? botDepth*2 : botDepth;
       const mv = pickBotMove(game, depth, botColor);
       botThinking = false;
-      if (mv) game.move(mv);
+      if (mv){ game.move(mv); notice = ''; restartClock(); }
       recomputeCaptured();
       clearSelection();
       render();
@@ -1803,7 +2101,7 @@ function createDraughts(){
     teardownPeer();
     mode = 'local';
     myColor = null;
-    game = newGame();
+    freshGame();
     recomputeCaptured();
     clearSelection();
     lobbyView.hidden = true;
@@ -1822,7 +2120,7 @@ function createDraughts(){
     botColor = color === 'w' ? 'b' : 'w';
     botDepth = depth;
     botThinking = false;
-    game = newGame();
+    freshGame();
     recomputeCaptured();
     clearSelection();
     lobbyView.hidden = true;
@@ -1860,7 +2158,7 @@ function createDraughts(){
     gameType = type;
     document.body.dataset.game = type;
     gameBtns.forEach(b=>b.classList.toggle('active', b.dataset.game === type));
-    game = newGame();
+    freshGame();
     recomputeCaptured();
     clearSelection();
   }
@@ -1896,7 +2194,7 @@ function createDraughts(){
       peer = p;
       mode = 'online';
       myColor = 'w';
-      game = newGame();
+      freshGame();
       recomputeCaptured();
       clearSelection();
       setRoomCode(code);
@@ -1947,7 +2245,7 @@ function createDraughts(){
         peer = p;
         mode = 'online';
         myColor = 'b';
-        game = newGame();
+        freshGame();
         recomputeCaptured();
         clearSelection();
         setRoomCode(code);
@@ -1983,8 +2281,23 @@ function createDraughts(){
       if (msg && msg.type === 'sync'){
         // the host decides which game is played
         if ((msg.game === 'chess' || msg.game === 'draughts') && msg.game !== gameType) setGameType(msg.game);
+        if (typeof msg.tc === 'number' && msg.tc !== tc) setTimeControl(msg.tc);
         rebuildFromHistory(msg.history);
+        result = msg.result || null;
+        if (clock && msg.clock){
+          clock = {w: msg.clock.w, b: msg.clock.b, running: null, since: Date.now()};
+        }
+        restartClock();
+        notice = '';
+        drawPending = false;
+        if (result) closeAsk(false);
         clearSelection();
+        render();
+      } else if (msg && msg.type === 'draw-offer'){
+        onDrawOffer();
+      } else if (msg && msg.type === 'draw-decline'){
+        drawPending = false;
+        notice = 'Өрсөлдөгч тэнцээнээс татгалзлаа.';
         render();
       } else if (msg && msg.type === 'rematch'){
         handleRematchInvite(msg.code);
@@ -2039,7 +2352,7 @@ function createDraughts(){
       if (oldPeer) try{ oldPeer.destroy(); }catch(e){}
       peer = newPeer;
       dataConn = null;
-      game = newGame();
+      freshGame();
       recomputeCaptured();
       clearSelection();
       setRoomCode(code);
@@ -2111,9 +2424,24 @@ function createDraughts(){
   });
   leaveRoomBtn.addEventListener('click', resetToLobby);
   exitGameBtn.addEventListener('click', resetToLobby);
+  resignBtn.addEventListener('click', resign);
+  drawBtn.addEventListener('click', offerDraw);
+  askYes.addEventListener('click', ()=> closeAsk(true));
+  askNo.addEventListener('click', ()=> closeAsk(false));
+  askOverlay.addEventListener('click', e=>{ if (e.target === askOverlay) closeAsk(false); });
+  document.addEventListener('keydown', e=>{
+    if (e.key === 'Escape' && askOverlay.classList.contains('open')) closeAsk(false);
+  });
+  tcBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=> setTimeControl(parseInt(btn.dataset.tc, 10)));
+  });
+  setInterval(tickClock, 250);
   rematchBtn.addEventListener('click', rematch);
 
   undoBtn.addEventListener('click', ()=>{
+    if (result && result.reason === 'timeout') return;
+    result = null;
+    notice = '';
     if (mode === 'bot'){
       if (botThinking || !game.history().length) return;
       game.undo();
@@ -2122,8 +2450,9 @@ function createDraughts(){
       }
       recomputeCaptured();
       clearSelection();
+      restartClock();
       render();
-      if (game.turn() !== playerColor && !game.game_over()){
+      if (game.turn() !== playerColor && !isOver()){
         scheduleBotMove();
       }
       return;
@@ -2131,12 +2460,13 @@ function createDraughts(){
     game.undo();
     recomputeCaptured();
     clearSelection();
+    restartClock();
     render();
   });
   resetBtn.addEventListener('click', ()=>{
     if (mode === 'bot'){
       botThinking = false;
-      game.reset();
+      freshGame();
       recomputeCaptured();
       clearSelection();
       render();
@@ -2145,7 +2475,7 @@ function createDraughts(){
       }
       return;
     }
-    game.reset();
+    freshGame();
     recomputeCaptured();
     clearSelection();
     render();
