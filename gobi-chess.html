@@ -596,6 +596,147 @@
     color: var(--sand-dim);
     padding-top:6px;
   }
+
+  /* ---------- polish layer ---------- */
+  :root{
+    --radius:10px;
+    --radius-sm:7px;
+    --shadow-1: 0 1px 0 rgba(255,236,190,0.04) inset, 0 6px 18px rgba(0,0,0,0.28);
+    --shadow-2: 0 1px 0 rgba(255,236,190,0.06) inset, 0 18px 42px rgba(0,0,0,0.45);
+    --glow: 0 0 0 1px rgba(201,162,74,0.35), 0 0 18px rgba(201,162,74,0.18);
+    --ease: cubic-bezier(.2,.7,.2,1);
+  }
+  [hidden]{ display:none !important; }
+  ::selection{ background: rgba(201,162,74,0.35); color: var(--ivory); }
+
+  .card{
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(255,236,190,0.025), transparent 40%), var(--panel);
+    box-shadow: var(--shadow-1);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .card:hover{ border-color: #54391f; }
+  .card h2{ display:flex; align-items:center; gap:8px; }
+
+  .lobby-view > .card:not([hidden]),
+  .game-grid:not([hidden]) .board-frame,
+  .game-grid:not([hidden]) .side > *{
+    animation: rise .38s var(--ease) both;
+  }
+  .game-grid:not([hidden]) .side > *:nth-child(2){ animation-delay:.04s; }
+  .game-grid:not([hidden]) .side > *:nth-child(3){ animation-delay:.08s; }
+  .game-grid:not([hidden]) .side > *:nth-child(4){ animation-delay:.12s; }
+  .game-grid:not([hidden]) .side > *:nth-child(5){ animation-delay:.16s; }
+  .game-grid:not([hidden]) .side > *:nth-child(n+6){ animation-delay:.2s; }
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(10px); }
+    to{ opacity:1; transform:none; }
+  }
+
+  button{
+    border-radius: var(--radius-sm);
+    transition: border-color .15s ease, color .15s ease, background-color .15s ease,
+                transform .12s var(--ease), box-shadow .2s ease, filter .15s ease;
+  }
+  button:not(:disabled):active{ transform: translateY(1px) scale(0.98); }
+  button:focus-visible, input:focus-visible{
+    outline: 2px solid var(--neon);
+    outline-offset: 2px;
+  }
+  button.primary{
+    background: linear-gradient(180deg, #d8b45c, var(--neon) 60%, #b38d3a);
+    box-shadow: 0 1px 0 rgba(255,245,215,0.45) inset, 0 6px 16px rgba(201,162,74,0.22);
+  }
+  button.primary:hover{ box-shadow: 0 1px 0 rgba(255,245,215,0.45) inset, 0 8px 22px rgba(201,162,74,0.32); }
+  .choice-btn.active{ box-shadow: var(--glow); }
+
+  .mode-opt{
+    position:relative;
+    overflow:hidden;
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, rgba(255,236,190,0.035), transparent 55%), var(--dune-mid);
+  }
+  .mode-opt::after{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0;
+    width:3px;
+    background: var(--neon);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform .22s var(--ease);
+  }
+  .mode-opt:hover{ transform: translateY(-2px); box-shadow: var(--shadow-2); }
+  .mode-opt:hover::after{ transform: scaleY(1); }
+  .mode-opt:hover .mode-title{ color: var(--ivory); }
+
+  .join-row input, .code-row input{
+    border-radius: var(--radius-sm);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .join-row input:focus, .code-row input:focus{ box-shadow: var(--glow); }
+  .code-display{ border-radius: var(--radius); }
+
+  .turn-badge{ border-radius: var(--radius-sm); box-shadow: var(--shadow-1); }
+
+  .board-frame{
+    border-radius: 14px;
+    box-shadow: var(--shadow-2);
+  }
+  .board-frame::before{ border-radius:14px; }
+  .board{
+    border-radius: 6px;
+    overflow:hidden;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 10px 26px rgba(0,0,0,0.45);
+  }
+  .sq.light{ background: linear-gradient(135deg, #f1e3b9, var(--light-sq)); }
+  .sq.dark{ background: linear-gradient(135deg, #4a3220, var(--dark-sq)); }
+  .sq .piece{ transition: transform .15s var(--ease); }
+  .board:not(.readonly) .sq:hover .piece{ transform: translateY(-2px) scale(1.05); }
+  .sq.selected .piece{ transform: translateY(-3px) scale(1.08); }
+  .sq.from, .sq.to{ box-shadow: inset 0 0 0 3px rgba(201,162,74,0.85), inset 0 0 18px rgba(201,162,74,0.35); }
+  .sq .dot-move{ animation: pop .18s var(--ease) both; }
+  .sq .ring-capture{ animation: pop .18s var(--ease) both; }
+  .sq.king-check{
+    box-shadow: inset 0 0 0 3px rgba(181,83,58,0.9), inset 0 0 22px rgba(181,83,58,0.55);
+    animation: warn 1.2s ease-in-out infinite;
+  }
+  @keyframes pop{ from{ transform: scale(0.4); opacity:0; } to{ transform:none; opacity:1; } }
+  @keyframes warn{ 50%{ box-shadow: inset 0 0 0 3px rgba(181,83,58,0.6), inset 0 0 10px rgba(181,83,58,0.3); } }
+
+  .status-line.alert{ animation: rise .3s var(--ease) both; }
+  .moves .row{ border-radius:4px; }
+  .moves .row:last-child{ background: rgba(201,162,74,0.08); }
+
+  .moves, .rules-body{ scrollbar-width: thin; scrollbar-color: var(--neon-dim) transparent; }
+  .moves::-webkit-scrollbar, .rules-body::-webkit-scrollbar{ width:6px; }
+  .moves::-webkit-scrollbar-thumb, .rules-body::-webkit-scrollbar-thumb{ background: var(--neon-dim); border-radius:3px; }
+  .moves::-webkit-scrollbar-track, .rules-body::-webkit-scrollbar-track{ background: transparent; }
+
+  .promo-overlay, .rules-overlay{
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .promo-overlay.open, .rules-overlay.open{ animation: fade .2s ease both; }
+  .promo-overlay.open .promo-box, .rules-overlay.open .rules-box{ animation: zoom .26s var(--ease) both; }
+  .promo-box, .rules-box{ border-radius: var(--radius); box-shadow: var(--shadow-2); }
+  .promo-box button{ border-radius: var(--radius-sm); }
+  .promo-box button:hover{ transform: translateY(-2px); box-shadow: var(--glow); }
+  @keyframes fade{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes zoom{ from{ opacity:0; transform: translateY(8px) scale(0.97); } to{ opacity:1; transform:none; } }
+
+  @media (max-width:480px){
+    .wrap{ padding: 20px 16px 36px; gap:18px; }
+    .board-frame{ padding:8px; border-radius:12px; }
+    .rules-btn{ padding:7px 11px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
 </style>
 </head>
 <body>
