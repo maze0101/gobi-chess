@@ -400,6 +400,16 @@
     box-shadow: inset 0 0 0 1.5px #f3e6c8, inset 0 -2px 3px rgba(0,0,0,0.5);
   }
 
+  .piece.draught{ width:1.5em; height:1.5em; }
+  .piece.draught.w{
+    box-shadow: inset 0 0 0 1.5px #171008, inset 0 0 0 0.2em #e7d8ae, inset 0 0 0 calc(0.2em + 1.5px) rgba(23,16,8,0.4), inset 0 -2px 3px rgba(23,16,8,0.25);
+  }
+  .piece.draught.b{
+    box-shadow: inset 0 0 0 1.5px #f3e6c8, inset 0 0 0 0.2em #2a1d10, inset 0 0 0 calc(0.2em + 1.5px) rgba(243,230,200,0.35), inset 0 -2px 3px rgba(0,0,0,0.5);
+  }
+  .piece.jumped{ opacity:0.35; }
+  .game-pick{ margin-bottom:18px; }
+
   .side{
     display:flex;
     flex-direction:column;
@@ -554,7 +564,9 @@
     letter-spacing:0.12em;
     color: var(--neon);
   }
-  .rules-head button{
+  .rules-tabs{ margin-left:auto; gap:6px; }
+  .rules-tabs .choice-btn{ flex:none; padding:6px 12px; font-size:12px; }
+  .rules-head #rulesCloseBtn{
     flex:none;
     width:36px; height:36px;
     padding:0;
@@ -756,6 +768,11 @@
 
   <div class="lobby-view" id="lobbyView">
     <div class="card" id="modeSelect">
+      <h2>ТОГЛООМОО СОНГОНО УУ</h2>
+      <div class="choice-row game-pick">
+        <button class="choice-btn game-btn active" data-game="chess">Шатар</button>
+        <button class="choice-btn game-btn" data-game="draughts">Даам</button>
+      </div>
       <h2>ТОГЛОХ ЗАГВАРАА СОНГОНО УУ</h2>
       <div class="mode-grid">
         <button class="mode-opt" id="modeLocalBtn">
@@ -798,7 +815,7 @@
 
     <div class="card" id="onlineMenu" hidden>
       <h2>ОНЛАЙН ТОГЛООМ</h2>
-      <p class="hint">Хоёулаа энэ хуудсыг нээсэн байх шаардлагатай. Нэг нь тоглоом үүсгэж кодоо өгнө, нөгөө нь тэр кодоор нэгддэг.</p>
+      <p class="hint">Хоёулаа энэ хуудсыг нээсэн байх шаардлагатай. Нэг нь тоглоом үүсгэж кодоо өгнө, нөгөө нь тэр кодоор нэгддэг. Хостын сонгосон тоглоомоор (шатар эсвэл даам) тоглоно.</p>
       <div class="online-actions">
         <button class="primary" id="createRoomBtn">Тоглоом үүсгэх (Хост)</button>
         <div class="join-row">
@@ -876,10 +893,15 @@
 <div class="rules-overlay" id="rulesOverlay">
   <div class="rules-box" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
     <div class="rules-head">
-      <h2 id="rulesTitle">ШАТРЫН ДҮРЭМ</h2>
+      <h2 id="rulesTitle">ДҮРЭМ</h2>
+      <div class="choice-row rules-tabs" role="tablist">
+        <button class="choice-btn rules-tab active" data-game="chess" role="tab">Шатар</button>
+        <button class="choice-btn rules-tab" data-game="draughts" role="tab">Даам</button>
+      </div>
       <button id="rulesCloseBtn" aria-label="Хаах">✕</button>
     </div>
     <div class="rules-body">
+    <div class="rules-pane" data-game="chess">
       <h3>Зорилго</h3>
       <p>Өрсөлдөгчийн <b>ноёныг мат</b> болгох — ноён шаг дор байгаа бөгөөд ямар ч нүүдлээр түүнээс гарч чадахгүй болгох.</p>
 
@@ -915,6 +937,39 @@
         <li><span class="pc">½</span><span><b>50 нүүдлийн дүрэм</b> — 50 нүүдлийн турш хүү нүүгээгүй, идэлт хийгдээгүй бол.</span></li>
       </ul>
     </div>
+    <div class="rules-pane" data-game="draughts" hidden>
+      <h3>Зорилго</h3>
+      <p>Өрсөлдөгчийн <b>бүх даамыг идэх</b>, эсвэл түүнийг нүүх нүүдэлгүй болгох.</p>
+
+      <h3>Эхлэл</h3>
+      <p>8×8 хөлгийн зөвхөн <b>бараан нүднүүд</b> дээр тоглоно. Тал бүр 12 даамтай бөгөөд өөрийн талын эхний гурван эгнээнд байрлана. Цагаан тал эхэлж нүүнэ.</p>
+
+      <h3>Нүүдэл</h3>
+      <ul>
+        <li><span class="pc">●</span><span><b>Даам</b> — урагшаа ташуу нэг нүд нүүнэ.</span></li>
+        <li><span class="pc">♛</span><span><b>Хаан</b> — ташуу чиглэлд урагш ч, арагш ч хэдэн ч нүд нүүнэ.</span></li>
+      </ul>
+
+      <h3>Идэх</h3>
+      <ul>
+        <li><span class="pc">●</span><span>Ташуу хажууд байгаа өрсөлдөгчийн даамын цаана хоосон нүд байвал түүн дээгүүр харайж <b>иднэ</b>. Даам <b>урагш ч, арагш ч</b> идэж болно.</span></li>
+        <li><span class="pc">!</span><span>Идэх боломжтой бол <b>заавал иднэ</b>. Хэд хэдэн идэлт байвал аль нэгийг нь сонгож болно.</span></li>
+        <li><span class="pc">»</span><span>Идсэний дараа дахин идэх боломж байвал нэг нүүдэлдээ <b>дараалан идсээр</b> байна. Энд очих нүд бүрээ дарааллаар нь дарна.</span></li>
+        <li><span class="pc">♛</span><span>Хаан хол байгаа даамыг ч иднэ, ард нь байгаа дурын хоосон нүдэнд буух боломжтой. Гэхдээ цааш идэх боломж олгох нүд байвал тэнд буух ёстой.</span></li>
+        <li><span class="pc">○</span><span>Идэгдсэн даамууд нүүдэл дуусахад хөлгөөс авагдана. Нэг даамын дээгүүр хоёр удаа харайж болохгүй.</span></li>
+      </ul>
+
+      <h3>Хаан болох</h3>
+      <p>Эсрэг талын захын эгнээнд хүрсэн даам <b>хаан</b> болно. Идэж яваад хүрвэл тэр даруй хаан болж, хааны дүрмээр идэлтээ үргэлжлүүлнэ.</p>
+
+      <h3>Хожил ба тэнцээ</h3>
+      <ul>
+        <li><span class="pc">1</span><span>Нүүх ээлжтэй тал нүүдэлгүй болбол (бүх даам нь идэгдсэн эсвэл хаагдсан) <b>хожигдоно</b>.</span></li>
+        <li><span class="pc">½</span><span><b>Гурван давталт</b> — нэг байрлал гурван удаа давтагдах.</span></li>
+        <li><span class="pc">½</span><span><b>15 нүүдлийн дүрэм</b> — хоёр тал 15 нүүдэл зөвхөн хаанаар, идэлтгүй нүүвэл.</span></li>
+      </ul>
+    </div>
+    </div>
     <div class="rules-foot">
       <button class="primary" id="rulesExitBtn">✕ Гарах</button>
     </div>
@@ -926,7 +981,19 @@
   const rulesBtn = document.getElementById('rulesBtn');
   const rulesOverlay = document.getElementById('rulesOverlay');
   const rulesCloseBtn = document.getElementById('rulesCloseBtn');
-  function openRules(){ rulesOverlay.classList.add('open'); rulesCloseBtn.focus(); }
+  const tabs = rulesOverlay.querySelectorAll('.rules-tab');
+  const panes = rulesOverlay.querySelectorAll('.rules-pane');
+  function showRules(game){
+    tabs.forEach(t=>{ const on = t.dataset.game === game; t.classList.toggle('active', on); t.setAttribute('aria-selected', on); });
+    panes.forEach(p=>{ p.hidden = p.dataset.game !== game; });
+    rulesOverlay.querySelector('.rules-body').scrollTop = 0;
+  }
+  tabs.forEach(t=> t.addEventListener('click', ()=> showRules(t.dataset.game)));
+  function openRules(){
+    showRules(document.body.dataset.game === 'draughts' ? 'draughts' : 'chess');
+    rulesOverlay.classList.add('open');
+    rulesCloseBtn.focus();
+  }
   function closeRules(){ rulesOverlay.classList.remove('open'); rulesBtn.focus(); }
   rulesBtn.addEventListener('click', openRules);
   rulesCloseBtn.addEventListener('click', closeRules);
@@ -936,6 +1003,195 @@
     if (e.key === 'Escape' && rulesOverlay.classList.contains('open')) closeRules();
   });
 })();
+</script>
+
+<script>
+// ---------- draughts engine (Russian 8×8 rules) ----------
+// Mirrors the subset of the chess.js API the UI and bot rely on, so both
+// games share rendering, history sync, undo and minimax.
+function createDraughts(){
+  const FILES = 'abcdefgh';
+  const DIRS = [[-1,-1],[-1,1],[1,-1],[1,1]];
+  let board, turn, stack, keys, kingQuiet, cache;
+
+  const inB = (r,f)=> r>=0 && r<8 && f>=0 && f<8;
+  const name = i => FILES[i%8] + (8 - Math.floor(i/8));
+  const index = sq => (8 - parseInt(sq[1],10))*8 + FILES.indexOf(sq[0]);
+  const promoRow = c => c==='w' ? 0 : 7;
+  const posKey = ()=> turn + board.map(row=>row.map(p=> p ? (p.color==='w' ? p.type : p.type.toUpperCase()) : '.').join('')).join('');
+
+  function reset(){
+    board = [];
+    for (let r=0;r<8;r++){
+      const row = [];
+      for (let f=0;f<8;f++){
+        const dark = (r+f)%2 === 1;
+        row.push(dark && r<3 ? {type:'m', color:'b'} : dark && r>4 ? {type:'m', color:'w'} : null);
+      }
+      board.push(row);
+    }
+    turn = 'w';
+    stack = [];
+    kingQuiet = 0;
+    cache = null;
+    keys = [posKey()];
+  }
+
+  // Every maximal capture chain from (r,f). Captured pieces stay on the board
+  // until the move ends (so they block and cannot be jumped twice).
+  function jumps(r, f, color, king, caps, path){
+    const res = [];
+    for (const [dr,df] of DIRS){
+      if (king){
+        let i = 1;
+        while (inB(r+dr*i, f+df*i) && !board[r+dr*i][f+df*i]) i++;
+        const mr = r+dr*i, mf = f+df*i;
+        if (!inB(mr,mf)) continue;
+        const mid = board[mr][mf];
+        if (mid.color === color || caps.includes(mr*8+mf)) continue;
+        const lands = [];
+        for (let j=i+1; inB(r+dr*j, f+df*j) && !board[r+dr*j][f+df*j]; j++) lands.push([r+dr*j, f+df*j]);
+        if (!lands.length) continue;
+        const nc = caps.concat(mr*8+mf);
+        const conts = [], ends = [];
+        for (const [lr,lf] of lands){
+          const np = path.concat(lr*8+lf);
+          const sub = jumps(lr, lf, color, true, nc, np);
+          if (sub.length) conts.push(...sub); else ends.push({path:np, caps:nc, king:true});
+        }
+        // must land where the capture can continue, if any such square exists
+        res.push(...(conts.length ? conts : ends));
+      } else {
+        const mr = r+dr, mf = f+df, lr = r+2*dr, lf = f+2*df;
+        if (!inB(lr,lf)) continue;
+        const mid = board[mr][mf];
+        if (!mid || mid.color === color || caps.includes(mr*8+mf) || board[lr][lf]) continue;
+        const nc = caps.concat(mr*8+mf), np = path.concat(lr*8+lf);
+        const nk = lr === promoRow(color); // promoted mid-capture keeps going as a king
+        const sub = jumps(lr, lf, color, nk, nc, np);
+        res.push(...(sub.length ? sub : [{path:np, caps:nc, king:nk}]));
+      }
+    }
+    return res;
+  }
+
+  function makeMove(p, path, caps, endsKing){
+    const capture = caps.length > 0;
+    return {
+      color: p.color,
+      piece: p.type,
+      from: name(path[0]),
+      to: name(path[path.length-1]),
+      path: path.map(name),
+      captured: caps.map(name),
+      capturedPieces: caps.map(i=>({type: board[Math.floor(i/8)][i%8].type, color: board[Math.floor(i/8)][i%8].color})),
+      promoted: p.type==='m' && endsKing,
+      san: path.map(name).join(capture ? ':' : '-')
+    };
+  }
+
+  function generate(){
+    if (cache) return cache;
+    const caps = [], quiet = [];
+    for (let r=0;r<8;r++){
+      for (let f=0;f<8;f++){
+        const p = board[r][f];
+        if (!p || p.color !== turn) continue;
+        const king = p.type === 'k';
+        board[r][f] = null;
+        const js = jumps(r, f, turn, king, [], [r*8+f]);
+        board[r][f] = p;
+        js.forEach(j=> caps.push(makeMove(p, j.path, j.caps, j.king)));
+        if (caps.length) continue;
+        for (const [dr,df] of DIRS){
+          if (!king && dr !== (turn==='w' ? -1 : 1)) continue;
+          for (let i=1; inB(r+dr*i, f+df*i) && !board[r+dr*i][f+df*i]; i++){
+            const tr = r+dr*i, tf = f+df*i;
+            quiet.push(makeMove(p, [r*8+f, tr*8+tf], [], king || tr === promoRow(turn)));
+            if (!king) break;
+          }
+        }
+      }
+    }
+    cache = caps.length ? caps : quiet;
+    return cache;
+  }
+
+  function apply(m){
+    const fi = index(m.from), ti = index(m.to);
+    const p = board[Math.floor(fi/8)][fi%8];
+    board[Math.floor(fi/8)][fi%8] = null;
+    m.captured.forEach(sq=>{ const i = index(sq); board[Math.floor(i/8)][i%8] = null; });
+    board[Math.floor(ti/8)][ti%8] = {type: (p.type==='k' || m.promoted) ? 'k' : 'm', color: p.color};
+    stack.push({move:m, kingQuiet});
+    kingQuiet = (p.type==='k' && !m.captured.length) ? kingQuiet+1 : 0;
+    turn = turn==='w' ? 'b' : 'w';
+    cache = null;
+    keys.push(posKey());
+    return m;
+  }
+
+  function threefold(){
+    const k = keys[keys.length-1];
+    let n = 0;
+    for (const x of keys) if (x === k) n++;
+    return n >= 3;
+  }
+
+  const api = {
+    board: ()=> board.map(row=>row.map(p=> p ? {type:p.type, color:p.color} : null)),
+    turn: ()=> turn,
+    get: sq=>{ const i = index(sq); const p = board[Math.floor(i/8)][i%8]; return p ? {type:p.type, color:p.color} : null; },
+    // Always returns move objects; opts.square filters by origin.
+    moves: opts=>{
+      const all = generate();
+      return opts && opts.square ? all.filter(m=>m.from===opts.square) : all.slice();
+    },
+    must_capture: ()=> generate().some(m=>m.captured.length),
+    // Accepts a move object from moves() or its notation string ("c3-d4", "c3:e5:c7").
+    move: m=>{
+      const legal = generate();
+      const key = typeof m === 'string' ? m : m && m.san;
+      const found = legal.find(x=>x.san===key);
+      return found ? apply(found) : null;
+    },
+    undo: ()=>{
+      const rec = stack.pop();
+      if (!rec) return null;
+      const m = rec.move;
+      const ti = index(m.to), fi = index(m.from);
+      board[Math.floor(ti/8)][ti%8] = null;
+      board[Math.floor(fi/8)][fi%8] = {type:m.piece, color:m.color};
+      m.captured.forEach((sq,k)=>{ const i = index(sq); board[Math.floor(i/8)][i%8] = Object.assign({}, m.capturedPieces[k]); });
+      kingQuiet = rec.kingQuiet;
+      turn = m.color;
+      keys.pop();
+      cache = null;
+      return m;
+    },
+    history: opts=> opts && opts.verbose ? stack.map(s=>s.move) : stack.map(s=>s.move.san),
+    reset,
+    // placement: {sq: 'w'|'b' (man) | 'W'|'B' (king)}
+    load: (placement, side)=>{
+      board = board.map(row=>row.map(()=>null));
+      Object.keys(placement).forEach(sq=>{
+        const c = placement[sq], i = index(sq);
+        board[Math.floor(i/8)][i%8] = {type: c===c.toUpperCase() ? 'k' : 'm', color: c.toLowerCase()};
+      });
+      turn = side || 'w'; stack = []; kingQuiet = 0; cache = null; keys = [posKey()];
+    },
+    in_check: ()=> false,
+    in_checkmate: ()=> generate().length === 0,   // side to move has no moves → loses
+    in_stalemate: ()=> false,
+    insufficient_material: ()=> false,
+    in_threefold_repetition: threefold,
+    king_draw: ()=> kingQuiet >= 30,                // 15 moves each, kings only, no captures
+    in_draw: ()=> threefold() || kingQuiet >= 30,
+    game_over: ()=> generate().length === 0 || threefold() || kingQuiet >= 30
+  };
+  reset();
+  return api;
+}
 </script>
 
 <script>
@@ -966,6 +1222,7 @@
   const backFromBotBtn = document.getElementById('backFromBotBtn');
   const colorBtns = document.querySelectorAll('.color-btn');
   const depthBtns = document.querySelectorAll('.depth-btn');
+  const gameBtns = document.querySelectorAll('.game-btn');
   const onlineMenu = document.getElementById('onlineMenu');
   const createRoomBtn = document.getElementById('createRoomBtn');
   const joinRoomBtn = document.getElementById('joinRoomBtn');
@@ -994,12 +1251,16 @@
     p:{w:'♙︎',b:'♟︎'}, n:{w:'♘︎',b:'♞︎'}, b:{w:'♗︎',b:'♝︎'},
     r:{w:'♖︎',b:'♜︎'}, q:{w:'♕︎',b:'♛︎'}, k:{w:'♔︎',b:'♚︎'}
   };
+  const DRAUGHT_GLYPH = { m:'', k:'♛︎' };
   const files = ['a','b','c','d','e','f','g','h'];
   const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   const PEER_PREFIX = 'gbc-';
 
   // ---------- state ----------
-  let game = new Chess();
+  let gameType = 'chess';  // 'chess' | 'draughts'
+  function newGame(){ return gameType === 'draughts' ? createDraughts() : new Chess(); }
+  let game = newGame();
+  let dPath = [];         // draughts: squares visited so far by the selected piece
   let selected = null;
   let legalTargets = [];
   let capturedByWhite = [];
@@ -1020,7 +1281,15 @@
   // ---------- helpers ----------
   function squareColor(file, rank){
     const idx = files.indexOf(file);
-    return (idx + rank) % 2 === 0 ? 'dark' : 'light';
+    return (idx + rank) % 2 === 1 ? 'dark' : 'light'; // a1 is dark
+  }
+
+  function glyph(type, color){
+    return gameType === 'draughts' ? DRAUGHT_GLYPH[type] : PIECE_GLYPH[type][color];
+  }
+
+  function pieceClass(color){
+    return 'piece ' + color + (gameType === 'draughts' ? ' draught' : '');
   }
 
   function findKingSquare(color){
@@ -1041,6 +1310,10 @@
     capturedByBlack = [];
     const hist = game.history({verbose:true});
     hist.forEach(m=>{
+      if (gameType === 'draughts'){
+        m.capturedPieces.forEach(p=> (m.color === 'w' ? capturedByWhite : capturedByBlack).push(p.type));
+        return;
+      }
       if (m.captured){
         if (m.color === 'w') capturedByWhite.push(m.captured);
         else capturedByBlack.push(m.captured);
@@ -1049,7 +1322,7 @@
   }
 
   function rebuildFromHistory(hist){
-    game = new Chess();
+    game = newGame();
     (hist||[]).forEach(san=>{ try{ game.move(san); }catch(e){} });
     recomputeCaptured();
   }
@@ -1069,6 +1342,19 @@
     boardEl.classList.toggle('readonly', isReadonly);
     const flipped = isBoardFlipped();
     const boardState = game.board();
+    // Draughts mid-capture: show the piece where it has got to so far and
+    // fade the pieces it has already jumped (they leave when the move ends).
+    let hl = selected, jumped = [];
+    if (gameType === 'draughts' && dPath.length > 1){
+      const origin = dPath[0], at = dPath[dPath.length-1];
+      const oi = files.indexOf(origin[0]), or = 8 - parseInt(origin[1],10);
+      const ai = files.indexOf(at[0]), ar = 8 - parseInt(at[1],10);
+      boardState[ar][ai] = boardState[or][oi];
+      boardState[or][oi] = null;
+      const m = draughtsMatches()[0];
+      if (m) jumped = m.captured.slice(0, dPath.length-1);
+      hl = at;
+    }
     for(let dr=0; dr<8; dr++){
       for(let df=0; df<8; df++){
         const r = flipped ? 7-dr : dr;
@@ -1090,12 +1376,12 @@
 
         if (cell){
           const p = document.createElement('span');
-          p.className = 'piece ' + cell.color;
-          p.textContent = PIECE_GLYPH[cell.type][cell.color];
+          p.className = pieceClass(cell.color) + (jumped.includes(sqName) ? ' jumped' : '');
+          p.textContent = glyph(cell.type, cell.color);
           div.appendChild(p);
         }
 
-        if (selected === sqName){
+        if (hl === sqName){
           div.classList.add('selected');
         }
 
@@ -1151,6 +1437,26 @@
       statusEl.textContent = 'Бот бодож байна…';
       return;
     }
+    if (gameType === 'draughts'){
+      if (game.in_checkmate()){
+        const winner = game.turn()==='w' ? 'Хар' : 'Цагаан';
+        statusEl.textContent = 'Нүүх нүүдэл үлдсэнгүй — ' + winner + ' тал ялав.';
+        statusEl.classList.add('alert');
+      } else if (game.in_threefold_repetition()){
+        statusEl.textContent = 'Гурван удаагийн давталт — тэнцээ.';
+      } else if (game.king_draw()){
+        statusEl.textContent = '15 нүүдэл зөвхөн хаанаар, идэлтгүй — тэнцээ.';
+      } else if (dPath.length > 1){
+        statusEl.textContent = 'Идэлтээ үргэлжлүүлнэ үү.';
+        statusEl.classList.add('alert');
+      } else if (game.must_capture()){
+        statusEl.textContent = 'Идэх ёстой!';
+        statusEl.classList.add('alert');
+      } else {
+        statusEl.textContent = 'Тоглолт үргэлжилж байна.';
+      }
+      return;
+    }
     if (game.in_checkmate()){
       const winner = game.turn()==='w' ? 'Хар' : 'Цагаан';
       statusEl.textContent = 'МАТ! ' + winner + ' тал ялав.';
@@ -1172,8 +1478,8 @@
   }
 
   function updateCaptured(){
-    capByWhiteEl.innerHTML = capturedByWhite.map(t=>'<span class="piece b">'+PIECE_GLYPH[t].b+'</span>').join('');
-    capByBlackEl.innerHTML = capturedByBlack.map(t=>'<span class="piece w">'+PIECE_GLYPH[t].w+'</span>').join('');
+    capByWhiteEl.innerHTML = capturedByWhite.map(t=>'<span class="'+pieceClass('b')+'">'+glyph(t,'b')+'</span>').join('');
+    capByBlackEl.innerHTML = capturedByBlack.map(t=>'<span class="'+pieceClass('w')+'">'+glyph(t,'w')+'</span>').join('');
   }
 
   function updateMoves(){
@@ -1208,6 +1514,7 @@
     if (mode==='bot'){
       if (botThinking || game.turn() !== playerColor) return;
     }
+    if (gameType === 'draughts'){ onDraughtsClick(sq); return; }
 
     if (selected){
       const move = legalTargets.find(m=>m.to===sq);
@@ -1239,6 +1546,53 @@
   function clearSelection(){
     selected = null;
     legalTargets = [];
+    dPath = [];
+  }
+
+  // Draughts: a capture chain is entered one landing square at a time.
+  function onDraughtsClick(sq){
+    if (selected){
+      if (legalTargets.some(t=>t.to===sq)){
+        dPath.push(sq);
+        const matches = draughtsMatches();
+        const done = matches.find(m=>m.path.length === dPath.length);
+        if (done){ commitMove(game.move(done)); return; }
+        setDraughtsTargets();
+        render();
+        return;
+      }
+      const piece = game.get(sq);
+      if (dPath.length <= 1 && piece && piece.color === game.turn()){
+        selectDraughts(sq);
+      } else {
+        clearSelection();
+        render();
+      }
+      return;
+    }
+    const piece = game.get(sq);
+    if (piece && piece.color === game.turn()) selectDraughts(sq);
+  }
+
+  function selectDraughts(sq){
+    selected = sq;
+    dPath = [sq];
+    setDraughtsTargets();
+    render();
+  }
+
+  function draughtsMatches(){
+    return game.moves({square: dPath[0]}).filter(m=> dPath.every((s,i)=>m.path[i]===s));
+  }
+
+  function setDraughtsTargets(){
+    legalTargets = [];
+    draughtsMatches().forEach(m=>{
+      const next = m.path[dPath.length];
+      if (next && !legalTargets.some(t=>t.to===next)){
+        legalTargets.push({to: next, captured: m.captured.length > 0});
+      }
+    });
   }
 
   function attemptMove(from, to, moveObj){
@@ -1252,7 +1606,10 @@
   }
 
   function doMove(from, to, promotion){
-    const move = game.move({from, to, promotion});
+    commitMove(game.move({from, to, promotion}));
+  }
+
+  function commitMove(move){
     clearSelection();
     if (!move){ render(); return; }
     recomputeCaptured();
@@ -1265,14 +1622,32 @@
 
   function sendSync(){
     if (dataConn && dataConn.open){
-      try { dataConn.send(JSON.stringify({type:'sync', history: game.history()})); } catch(e){}
+      try { dataConn.send(JSON.stringify({type:'sync', game: gameType, history: game.history()})); } catch(e){}
     }
   }
 
   // ---------- bot engine ----------
   const PIECE_VALUE = { p:100, n:320, b:330, r:500, q:900, k:0 };
 
+  function evaluateDraughts(g){
+    let score = 0;
+    const board = g.board();
+    for(let r=0;r<8;r++){
+      for(let f=0;f<8;f++){
+        const c = board[r][f];
+        if (!c) continue;
+        // men gain a little for each row advanced, and for holding the centre
+        const advance = c.color==='w' ? 7-r : r;
+        const centre = (f>=2 && f<=5 && r>=2 && r<=5) ? 4 : 0;
+        const v = c.type==='k' ? 300 : 100 + advance*4 + centre;
+        score += (c.color==='w' ? 1 : -1) * v;
+      }
+    }
+    return score;
+  }
+
   function evaluateBoard(g){
+    if (gameType === 'draughts') return evaluateDraughts(g);
     let score = 0;
     const board = g.board();
     for(let r=0;r<8;r++){
@@ -1344,7 +1719,9 @@
     render();
     setTimeout(()=>{
       if (mode !== 'bot') return;
-      const mv = pickBotMove(game, botDepth, botColor);
+      // draughts has far fewer moves per turn, so it can afford to look deeper
+      const depth = gameType === 'draughts' ? botDepth*2 : botDepth;
+      const mv = pickBotMove(game, depth, botColor);
       botThinking = false;
       if (mv) game.move(mv);
       recomputeCaptured();
@@ -1426,7 +1803,7 @@
     teardownPeer();
     mode = 'local';
     myColor = null;
-    game = new Chess();
+    game = newGame();
     recomputeCaptured();
     clearSelection();
     lobbyView.hidden = true;
@@ -1445,7 +1822,7 @@
     botColor = color === 'w' ? 'b' : 'w';
     botDepth = depth;
     botThinking = false;
-    game = new Chess();
+    game = newGame();
     recomputeCaptured();
     clearSelection();
     lobbyView.hidden = true;
@@ -1479,6 +1856,15 @@
 
   function setBusy(btn, busy){ btn.disabled = busy; }
 
+  function setGameType(type){
+    gameType = type;
+    document.body.dataset.game = type;
+    gameBtns.forEach(b=>b.classList.toggle('active', b.dataset.game === type));
+    game = newGame();
+    recomputeCaptured();
+    clearSelection();
+  }
+
   function setRoomCode(label){
     roomCodeEl.textContent = label ? ('Тоглоомын өрөө: ' + label) : '';
   }
@@ -1510,7 +1896,7 @@
       peer = p;
       mode = 'online';
       myColor = 'w';
-      game = new Chess();
+      game = newGame();
       recomputeCaptured();
       clearSelection();
       setRoomCode(code);
@@ -1561,7 +1947,7 @@
         peer = p;
         mode = 'online';
         myColor = 'b';
-        game = new Chess();
+        game = newGame();
         recomputeCaptured();
         clearSelection();
         setRoomCode(code);
@@ -1595,6 +1981,8 @@
       let msg;
       try { msg = JSON.parse(typeof raw === 'string' ? raw : String(raw)); } catch(e){ return; }
       if (msg && msg.type === 'sync'){
+        // the host decides which game is played
+        if ((msg.game === 'chess' || msg.game === 'draughts') && msg.game !== gameType) setGameType(msg.game);
         rebuildFromHistory(msg.history);
         clearSelection();
         render();
@@ -1606,6 +1994,9 @@
     });
     dataConn.on('close', ()=>{ setConnStatus(false); });
     dataConn.on('error', ()=>{ setConnStatus(false); });
+    if (myColor === 'w'){
+      if (conn.open) sendSync(); else conn.on('open', sendSync);
+    }
     showOnlineGame();
     render();
   }
@@ -1648,7 +2039,7 @@
       if (oldPeer) try{ oldPeer.destroy(); }catch(e){}
       peer = newPeer;
       dataConn = null;
-      game = new Chess();
+      game = newGame();
       recomputeCaptured();
       clearSelection();
       setRoomCode(code);
@@ -1684,6 +2075,9 @@
   }
 
   // ---------- wiring ----------
+  gameBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=> setGameType(btn.dataset.game));
+  });
   modeLocalBtn.addEventListener('click', startLocalMode);
   modeOnlineBtn.addEventListener('click', showOnlineMenu);
   modeBotBtn.addEventListener('click', showBotMenu);
@@ -1758,6 +2152,7 @@
   });
 
   // ---------- boot ----------
+  document.body.dataset.game = gameType;
   render();
   showModeSelect();
 
