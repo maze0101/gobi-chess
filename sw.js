@@ -1,4 +1,4 @@
-const CACHE = 'gobi-chess-v5';
+const CACHE = 'gobi-chess-v6';
 const ASSETS = ['./gobi-chess.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {

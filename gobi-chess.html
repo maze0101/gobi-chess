@@ -510,7 +510,7 @@
     flex:none;
   }
 
-  .header-right{ display:flex; align-items:center; gap:10px; }
+  .header-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .rules-btn{
     flex:none;
     padding:8px 14px;
@@ -749,6 +749,7 @@
     <div class="header-right">
       <div class="turn-badge white" id="turnBadge" hidden><span class="pip"></span>Цагаан нүүх ээлж</div>
       <button class="rules-btn" id="rulesBtn">Дүрэм</button>
+      <button class="rules-btn exit-btn" id="exitGameBtn" hidden>← Гарах</button>
     </div>
   </header>
   <div class="motif-band"></div>
@@ -986,6 +987,7 @@
   const undoBtn = document.getElementById('undoBtn');
   const resetBtn = document.getElementById('resetBtn');
   const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+  const exitGameBtn = document.getElementById('exitGameBtn');
   const rematchBtn = document.getElementById('rematchBtn');
 
   const PIECE_GLYPH = {
@@ -1134,6 +1136,7 @@
   function updateStatusBadge(){
     const turn = game.turn();
     turnBadge.hidden = false;
+    exitGameBtn.hidden = false;
     turnBadge.className = 'turn-badge ' + (turn==='w' ? 'white':'black');
     let label = (turn==='w' ? 'Цагаан нүүх ээлж' : 'Хар нүүх ээлж');
     if (mode==='online' && myColor){
@@ -1340,6 +1343,7 @@
     botThinking = true;
     render();
     setTimeout(()=>{
+      if (mode !== 'bot') return;
       const mv = pickBotMove(game, botDepth, botColor);
       botThinking = false;
       if (mv) game.move(mv);
@@ -1370,6 +1374,7 @@
     lobbyView.hidden = false;
     gameView.hidden = true;
     turnBadge.hidden = true;
+    exitGameBtn.hidden = true;
     modeSelect.hidden = false;
     botMenu.hidden = true;
     onlineMenu.hidden = true;
@@ -1711,6 +1716,7 @@
     try { navigator.clipboard && navigator.clipboard.writeText(hostCodeInput.value); } catch(e){}
   });
   leaveRoomBtn.addEventListener('click', resetToLobby);
+  exitGameBtn.addEventListener('click', resetToLobby);
   rematchBtn.addEventListener('click', rematch);
 
   undoBtn.addEventListener('click', ()=>{
